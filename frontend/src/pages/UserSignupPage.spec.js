@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { UserSignupPage } from './UserSignupPage';
 
@@ -46,6 +46,51 @@ describe('UserSignupPage', () => {
       const { container } = render(<UserSignupPage />);
       const button = container.querySelector('button');
       expect(button).toBeInTheDocument();
+    });
+  });
+  describe('Interactions', () => {
+    const changeEvent = (content) => {
+      return {
+        target: {
+          value: content
+        }
+      };
+    };
+
+    it('sets the displayName value into state', () => {
+      const { queryByPlaceholderText } = render(<UserSignupPage />);
+      const displayNameInput = queryByPlaceholderText('Your display name');
+
+      fireEvent.change(displayNameInput, changeEvent('my-display-name'));
+
+      expect(displayNameInput).toHaveValue('my-display-name');
+    });
+
+    it('sets the username value into state', () => {
+      const { queryByPlaceholderText } = render(<UserSignupPage />);
+      const usernameInput = queryByPlaceholderText('Your username');
+
+      fireEvent.change(usernameInput, changeEvent('my-user-name'));
+
+      expect(usernameInput).toHaveValue('my-user-name');
+    });
+
+    it('sets the password value into state', () => {
+      const { queryByPlaceholderText } = render(<UserSignupPage />);
+      const passwordInput = queryByPlaceholderText('Your password');
+
+      fireEvent.change(passwordInput, changeEvent('P4ssword'));
+
+      expect(passwordInput).toHaveValue('P4ssword');
+    });
+
+    it('sets the password repeat value into state', () => {
+      const { queryByPlaceholderText } = render(<UserSignupPage />);
+      const passwordRepeat = queryByPlaceholderText('Repeat your password');
+
+      fireEvent.change(passwordRepeat, changeEvent('P4ssword'));
+
+      expect(passwordRepeat).toHaveValue('P4ssword');
     });
   });
 });
