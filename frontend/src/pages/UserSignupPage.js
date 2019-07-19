@@ -8,27 +8,43 @@ export class UserSignupPage extends React.Component {
     password: '',
     passwordRepeat: '',
     pendingApiCall: false,
-    errors: {}
+    errors: {},
+    passwordRepeatConfirmed: true
   };
 
   onChangeDisplayName = (event) => {
     const value = event.target.value;
-    this.setState({ displayName: value });
+    const errors = { ...this.state.errors };
+    delete errors.displayName;
+    this.setState({ displayName: value, errors });
   };
 
   onChangeUsername = (event) => {
     const value = event.target.value;
-    this.setState({ username: value });
+    const errors = { ...this.state.errors };
+    delete errors.username;
+    this.setState({ username: value, errors });
   };
 
   onChangePassword = (event) => {
     const value = event.target.value;
-    this.setState({ password: value });
+    const passwordRepeatConfirmed = this.state.passwordRepeat === value;
+    const errors = { ...this.state.errors };
+    delete errors.password;
+    errors.passwordRepeat = passwordRepeatConfirmed
+      ? ''
+      : 'Does not match to password';
+    this.setState({ password: value, passwordRepeatConfirmed, errors });
   };
 
   onChangePasswordRepeat = (event) => {
     const value = event.target.value;
-    this.setState({ passwordRepeat: value });
+    const passwordRepeatConfirmed = this.state.password === value;
+    const errors = { ...this.state.errors };
+    errors.passwordRepeat = passwordRepeatConfirmed
+      ? ''
+      : 'Does not match to password';
+    this.setState({ passwordRepeat: value, passwordRepeatConfirmed, errors });
   };
 
   onClickSignup = () => {
@@ -102,7 +118,9 @@ export class UserSignupPage extends React.Component {
           <button
             className="btn btn-primary"
             onClick={this.onClickSignup}
-            disabled={this.state.pendingApiCall}
+            disabled={
+              this.state.pendingApiCall || !this.state.passwordRepeatConfirmed
+            }
           >
             {this.state.pendingApiCall && (
               <div className="spinner-border text-light spinner-border-sm mr-1">
