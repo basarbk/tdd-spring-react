@@ -14,6 +14,8 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.hoaxify.hoaxify.error.ApiError;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -35,6 +37,25 @@ public class LoginControllerTest {
 		authenticate();
 		ResponseEntity<Object> response = login(Object.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+	}
+	
+	@Test
+	public void postLogin_withoutUserCredentials_receiveApiError() {
+		ResponseEntity<ApiError> response = login(ApiError.class);
+		assertThat(response.getBody().getUrl()).isEqualTo(API_1_0_LOGIN);
+	}
+	
+	@Test
+	public void postLogin_withoutUserCredentials_receiveApiErrorWithoutValidationErrors() {
+		ResponseEntity<String> response = login(String.class);
+		assertThat(response.getBody().contains("validationErrors")).isFalse();
+	}
+	
+	@Test
+	public void postLogin_withIncorrectCredentials_receiveUnauthorizedWithoutWWWAuthenticationHeader() {
+		authenticate();
+		ResponseEntity<Object> response = login(Object.class);
+		assertThat(response.getHeaders().containsKey("WWW-Authenticate")).isFalse();
 	}
 
 	private void authenticate() {

@@ -11,8 +11,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
-		
-		http.httpBasic();
+
+		http.httpBasic().authenticationEntryPoint(new BasicAuthenticationEntryPoint());
 		
 		http
 			.authorizeRequests().antMatchers(HttpMethod.POST, "/api/1.0/login").authenticated()
