@@ -1,5 +1,6 @@
 import React from 'react';
 import Input from '../components/Input';
+import ButtonWithProgress from '../components/ButtonWithProgress';
 
 export class UserSignupPage extends React.Component {
   state = {
@@ -115,20 +116,14 @@ export class UserSignupPage extends React.Component {
           />
         </div>
         <div className="text-center">
-          <button
-            className="btn btn-primary"
+          <ButtonWithProgress
             onClick={this.onClickSignup}
             disabled={
               this.state.pendingApiCall || !this.state.passwordRepeatConfirmed
             }
-          >
-            {this.state.pendingApiCall && (
-              <div className="spinner-border text-light spinner-border-sm mr-1">
-                <span className="sr-only">Loading...</span>
-              </div>
-            )}
-            Sign Up
-          </button>
+            pendingApiCall={this.state.pendingApiCall}
+            text="Sign Up"
+          />
         </div>
       </div>
     );
