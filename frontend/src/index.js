@@ -8,10 +8,13 @@ import { LoginPage } from './pages/LoginPage';
 import * as apiCalls from './api/apiCalls';
 
 const actions = {
-  postSignup: apiCalls.signup
+  postLogin: apiCalls.login
 };
 
-ReactDOM.render(<LoginPage />, document.getElementById('root'));
+ReactDOM.render(
+  <LoginPage actions={actions} />,
+  document.getElementById('root')
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
