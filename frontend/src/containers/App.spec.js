@@ -16,13 +16,11 @@ describe('App', () => {
     const { queryByTestId } = setup('/');
     expect(queryByTestId('homepage')).toBeInTheDocument();
   });
-
   it('displays LoginPage when url is /login', () => {
     const { container } = setup('/login');
     const header = container.querySelector('h1');
     expect(header).toHaveTextContent('Login');
   });
-
   it('displays only LoginPage when url is /login', () => {
     const { queryByTestId } = setup('/login');
     expect(queryByTestId('homepage')).not.toBeInTheDocument();
