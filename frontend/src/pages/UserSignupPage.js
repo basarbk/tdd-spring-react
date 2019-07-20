@@ -58,7 +58,9 @@ export class UserSignupPage extends React.Component {
     this.props.actions
       .postSignup(user)
       .then((response) => {
-        this.setState({ pendingApiCall: false });
+        this.setState({ pendingApiCall: false }, () =>
+          this.props.history.push('/')
+        );
       })
       .catch((apiError) => {
         let errors = { ...this.state.errors };
@@ -136,6 +138,9 @@ UserSignupPage.defaultProps = {
       new Promise((resolve, reject) => {
         resolve({});
       })
+  },
+  history: {
+    push: () => {}
   }
 };
 
