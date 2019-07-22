@@ -17,7 +17,13 @@ const setup = (path) => {
     </Provider>
   );
 };
-
+const changeEvent = (content) => {
+  return {
+    target: {
+      value: content
+    }
+  };
+};
 describe('App', () => {
   it('displays homepage when url is /', () => {
     const { queryByTestId } = setup('/');
@@ -85,13 +91,6 @@ describe('App', () => {
   });
   it('displays My Profile on TopBar after login success', async () => {
     const { queryByPlaceholderText, container, queryByText } = setup('/login');
-    const changeEvent = (content) => {
-      return {
-        target: {
-          value: content
-        }
-      };
-    };
     const usernameInput = queryByPlaceholderText('Your username');
     fireEvent.change(usernameInput, changeEvent('user1'));
     const passwordInput = queryByPlaceholderText('Your password');
@@ -105,6 +104,40 @@ describe('App', () => {
         image: 'profile1.png'
       }
     });
+    fireEvent.click(button);
+
+    const myProfileLink = await waitForElement(() => queryByText('My Profile'));
+    expect(myProfileLink).toBeInTheDocument();
+  });
+  it('displays My Profile on TopBar after signup success', async () => {
+    const { queryByPlaceholderText, container, queryByText } = setup('/signup');
+    const displayNameInput = queryByPlaceholderText('Your display name');
+    const usernameInput = queryByPlaceholderText('Your username');
+    const passwordInput = queryByPlaceholderText('Your password');
+    const passwordRepeat = queryByPlaceholderText('Repeat your password');
+
+    fireEvent.change(displayNameInput, changeEvent('display1'));
+    fireEvent.change(usernameInput, changeEvent('user1'));
+    fireEvent.change(passwordInput, changeEvent('P4ssword'));
+    fireEvent.change(passwordRepeat, changeEvent('P4ssword'));
+
+    const button = container.querySelector('button');
+    axios.post = jest
+      .fn()
+      .mockResolvedValueOnce({
+        data: {
+          message: 'User saved'
+        }
+      })
+      .mockResolvedValueOnce({
+        data: {
+          id: 1,
+          username: 'user1',
+          displayName: 'display1',
+          image: 'profile1.png'
+        }
+      });
+
     fireEvent.click(button);
 
     const myProfileLink = await waitForElement(() => queryByText('My Profile'));
