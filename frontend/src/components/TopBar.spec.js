@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import TopBar from './TopBar';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -68,6 +68,15 @@ describe('TopBar', () => {
       const { queryByText } = setup(loggedInState);
       const profileLink = queryByText('My Profile');
       expect(profileLink.getAttribute('href')).toBe('/user1');
+    });
+  });
+  describe('Interactions', () => {
+    it('displays the login and signup links when user clicks logout', () => {
+      const { queryByText } = setup(loggedInState);
+      const logoutLink = queryByText('Logout');
+      fireEvent.click(logoutLink);
+      const loginLink = queryByText('Login');
+      expect(loginLink).toBeInTheDocument();
     });
   });
 });
