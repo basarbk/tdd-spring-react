@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenericResponse;
 
@@ -37,6 +38,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/users")
+	@JsonView(Views.Base.class)
 	Page<?> getUsers() {
 		return userService.getUsers();
 	}
