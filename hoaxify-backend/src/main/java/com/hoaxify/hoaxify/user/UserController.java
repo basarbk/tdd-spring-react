@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenericResponse;
+import com.hoaxify.hoaxify.user.vm.UserVM;
 
 @RestController
 @RequestMapping("/api/1.0")
@@ -38,9 +38,8 @@ public class UserController {
 	}
 	
 	@GetMapping("/users")
-	@JsonView(Views.Base.class)
-	Page<?> getUsers() {
-		return userService.getUsers();
+	Page<UserVM> getUsers() {
+		return userService.getUsers().map(UserVM::new);
 	}
 	
 	@ExceptionHandler({MethodArgumentNotValidException.class})
