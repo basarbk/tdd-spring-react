@@ -5,4 +5,5 @@ spring:
       path: /h2-console  jpa:    properties:      javax:
         persistence:
           validation:
-            mode: none
+            mode: none  data:    web:      pageable:        default-page-size: 10
+        max-page-size: 100
