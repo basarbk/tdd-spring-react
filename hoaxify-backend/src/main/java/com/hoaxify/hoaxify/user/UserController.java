@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hoaxify.hoaxify.error.ApiError;
+import com.hoaxify.hoaxify.shared.CurrentUser;
 import com.hoaxify.hoaxify.shared.GenericResponse;
 import com.hoaxify.hoaxify.user.vm.UserVM;
 
@@ -39,8 +40,8 @@ public class UserController {
 	}
 	
 	@GetMapping("/users")
-	Page<UserVM> getUsers(Pageable page) {
-		return userService.getUsers(page).map(UserVM::new);
+	Page<UserVM> getUsers(@CurrentUser User loggedInUser, Pageable page) {
+		return userService.getUsers(loggedInUser, page).map(UserVM::new);
 	}
 	
 	@ExceptionHandler({MethodArgumentNotValidException.class})
