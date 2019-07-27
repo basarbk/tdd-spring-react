@@ -7,6 +7,7 @@ import {
 } from '@testing-library/react';
 import UserList from './UserList';
 import * as apiCalls from '../api/apiCalls';
+import { MemoryRouter } from 'react-router-dom';
 
 apiCalls.listUsers = jest.fn().mockResolvedValue({
   data: {
@@ -17,7 +18,11 @@ apiCalls.listUsers = jest.fn().mockResolvedValue({
 });
 
 const setup = () => {
-  return render(<UserList />);
+  return render(
+    <MemoryRouter>
+      <UserList />
+    </MemoryRouter>
+  );
 };
 
 const mockedEmptySuccessResponse = {
@@ -164,6 +169,15 @@ describe('UserList', () => {
       const { queryByText } = setup();
       const previous = await waitForElement(() => queryByText('< previous'));
       expect(previous).not.toBeInTheDocument();
+    });
+    it('has link to UserPage', async () => {
+      apiCalls.listUsers = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetSinglePage);
+      const { queryByText, container } = setup();
+      await waitForElement(() => queryByText('display1@user1'));
+      const firstAnchor = container.querySelectorAll('a')[0];
+      expect(firstAnchor.getAttribute('href')).toBe('/user1');
     });
   });
   describe('Lifecycle', () => {
