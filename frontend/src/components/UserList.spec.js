@@ -99,6 +99,14 @@ const mockSuccessGetMultiPageLast = {
   }
 };
 
+const mockFailGet = {
+  response: {
+    data: {
+      message: 'Load error'
+    }
+  }
+};
+
 describe('UserList', () => {
   describe('Layout', () => {
     it('has header of Users', () => {
@@ -204,6 +212,40 @@ describe('UserList', () => {
         queryByText('display1@user1')
       );
       expect(firstPageUser).toBeInTheDocument();
+    });
+    it('displays error message when loading other page fails', async () => {
+      apiCalls.listUsers = jest
+        .fn()
+        .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
+        .mockRejectedValueOnce(mockFailGet);
+      const { queryByText } = setup();
+      const previousLink = await waitForElement(() =>
+        queryByText('< previous')
+      );
+      fireEvent.click(previousLink);
+
+      const errorMessage = await waitForElement(() =>
+        queryByText('User load failed')
+      );
+      expect(errorMessage).toBeInTheDocument();
+    });
+    it('hides error message when successfully loading other page', async () => {
+      apiCalls.listUsers = jest
+        .fn()
+        .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
+        .mockRejectedValueOnce(mockFailGet)
+        .mockResolvedValueOnce(mockSuccessGetMultiPageFirst);
+      const { queryByText } = setup();
+      const previousLink = await waitForElement(() =>
+        queryByText('< previous')
+      );
+      fireEvent.click(previousLink);
+      await waitForElement(() => queryByText('User load failed'));
+      fireEvent.click(previousLink);
+      const errorMessage = await waitForElement(() =>
+        queryByText('User load failed')
+      );
+      expect(errorMessage).not.toBeInTheDocument();
     });
   });
 });
