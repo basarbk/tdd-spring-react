@@ -1,5 +1,6 @@
 import React from 'react';
 import * as apiCalls from '../api/apiCalls';
+import ProfileCard from '../components/ProfileCard';
 
 class UserPage extends React.Component {
   state = {
@@ -46,11 +47,7 @@ class UserPage extends React.Component {
     }
     return (
       <div data-testid="userpage">
-        {this.state.user && (
-          <span>{`${this.state.user.displayName}@${
-            this.state.user.username
-          }`}</span>
-        )}
+        {this.state.user && <ProfileCard user={this.state.user} />}
       </div>
     );
   }
