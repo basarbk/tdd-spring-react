@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.CurrentUser;
 import com.hoaxify.hoaxify.shared.GenericResponse;
+import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 import com.hoaxify.hoaxify.user.vm.UserVM;
 
 @RestController
@@ -55,8 +56,9 @@ public class UserController {
 	
 	@PutMapping("/users/{id:[0-9]+}")
 	@PreAuthorize("#id == principal.id")
-	void updateUser(@PathVariable long id) {
-		
+	UserVM updateUser(@PathVariable long id, @RequestBody(required = false) UserUpdateVM userUpdate) {
+		User updated = userService.update(id, userUpdate);
+		return new UserVM(updated);
 	}
 	
 	@ExceptionHandler({MethodArgumentNotValidException.class})
