@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.hoaxify.hoaxify.user.User;
@@ -38,31 +39,53 @@ public class HoaxService {
 		return hoaxRepository.findByUser(inDB, pageable);
 	}
 
-	public Page<Hoax> getOldHoaxes(long id, Pageable pageable) {
-		return hoaxRepository.findByIdLessThan(id, pageable);
+	public Page<Hoax> getOldHoaxes(long id, String username, Pageable pageable) {
+		Specification<Hoax> spec = Specification.where(idLessThan(id));
+		if(username != null) {			
+			User inDB = userService.getByUsername(username);
+			spec = spec.and(userIs(inDB));
+		}
+		return hoaxRepository.findAll(spec, pageable);
 	}
 
-	public Page<Hoax> getOldHoaxesOfUser(long id, String username, Pageable pageable) {
-		User inDB = userService.getByUsername(username);
-		return hoaxRepository.findByIdLessThanAndUser(id, inDB, pageable);
+
+	public List<Hoax> getNewHoaxes(long id, String username, Pageable pageable) {
+		Specification<Hoax> spec = Specification.where(idGreaterThan(id));
+		if(username != null) {			
+			User inDB = userService.getByUsername(username);
+			spec = spec.and(userIs(inDB));
+		}
+		return hoaxRepository.findAll(spec, pageable.getSort());
 	}
 
-	public List<Hoax> getNewHoaxes(long id, Pageable pageable) {
-		return hoaxRepository.findByIdGreaterThan(id, pageable.getSort());
+	public long getNewHoaxesCount(long id, String username) {
+		Specification<Hoax> spec = Specification.where(idGreaterThan(id));
+		if(username != null) {			
+			User inDB = userService.getByUsername(username);
+			spec = spec.and(userIs(inDB));
+		}
+		return hoaxRepository.count(spec);
 	}
 
-	public List<Hoax> getNewHoaxesOfUser(long id, String username, Pageable pageable) {
-		User inDB = userService.getByUsername(username);
-		return hoaxRepository.findByIdGreaterThanAndUser(id, inDB, pageable.getSort());
+	private Specification<Hoax> userIs(User user){
+		return (root, query, criteriaBuilder) -> {
+			return criteriaBuilder.equal(root.get("user"), user);
+		};
 	}
 
-	public long getNewHoaxesCount(long id) {
-		return hoaxRepository.countByIdGreaterThan(id);
+	private Specification<Hoax> idLessThan(long id){
+		return (root, query, criteriaBuilder) -> {
+			return criteriaBuilder.lessThan(root.get("id"), id);
+		};
 	}
 
-	public long getNewHoaxesCountOfUser(long id, String username) {
-		User inDB = userService.getByUsername(username);
-		return hoaxRepository.countByIdGreaterThanAndUser(id, inDB);
+	private Specification<Hoax> idGreaterThan(long id){
+		return (root, query, criteriaBuilder) -> {
+			return criteriaBuilder.greaterThan(root.get("id"), id);
+		};
 	}
+	
+	
+	
 
 }
