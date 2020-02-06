@@ -9,6 +9,8 @@ class HoaxView extends Component {
     const { user, date } = hoax;
     const { username, displayName, image } = user;
     const relativeDate = format(date);
+    const attachmentImageVisible =
+      hoax.attachment && hoax.attachment.fileType.startsWith('image');
     return (
       <div className="card p-1">
         <div className="d-flex">
@@ -29,6 +31,15 @@ class HoaxView extends Component {
           </div>
         </div>
         <div className="pl-5">{hoax.content}</div>
+        {attachmentImageVisible && (
+          <div className="pl-5">
+            <img
+              alt="attachment"
+              src={`/images/attachments/${hoax.attachment.name}`}
+              className="img-fluid"
+            />
+          </div>
+        )}
       </div>
     );
   }
