@@ -8,7 +8,8 @@ class UserPage extends React.Component {
     user: undefined,
     userNotFound: false,
     isLoadingUser: false,
-    inEditMode: false
+    inEditMode: false,
+    originalDisplayName: undefined
   };
   componentDidMount() {
     this.loadUser();
@@ -45,7 +46,13 @@ class UserPage extends React.Component {
   };
 
   onClickCancel = () => {
+    const user = { ...this.state.user };
+    if (this.state.originalDisplayName !== undefined) {
+      user.displayName = this.state.originalDisplayName;
+    }
     this.setState({
+      user,
+      originalDisplayName: undefined,
       inEditMode: false
     });
   };
@@ -57,15 +64,20 @@ class UserPage extends React.Component {
     };
     apiCalls.updateUser(userId, userUpdate).then((response) => {
       this.setState({
-        inEditMode: false
+        inEditMode: false,
+        originalDisplayName: undefined
       });
     });
   };
 
   onChangeDisplayName = (event) => {
     const user = { ...this.state.user };
+    let originalDisplayName = this.state.originalDisplayName;
+    if (originalDisplayName === undefined) {
+      originalDisplayName = user.displayName;
+    }
     user.displayName = event.target.value;
-    this.setState({ user });
+    this.setState({ user, originalDisplayName });
   };
 
   render() {

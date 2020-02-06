@@ -183,6 +183,42 @@ describe('UserPage', () => {
 
       expect(editButtonAfterClickingSave).toBeInTheDocument();
     });
+    it('returns to original displayName after its changed in edit mode but cancelled', async () => {
+      const { queryByText, container } = await setupForEdit();
+      const displayInput = container.querySelector('input');
+      fireEvent.change(displayInput, { target: { value: 'display1-update' } });
+
+      const cancelButton = queryByText('Cancel');
+      fireEvent.click(cancelButton);
+
+      const originalDisplayText = queryByText('display1@user1');
+      expect(originalDisplayText).toBeInTheDocument();
+    });
+    it('returns to last updated displayName when display name is changed for another time but cancelled', async () => {
+      const { queryByText, container } = await setupForEdit();
+      let displayInput = container.querySelector('input');
+      fireEvent.change(displayInput, { target: { value: 'display1-update' } });
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      const editButtonAfterClickingSave = await waitForElement(() =>
+        queryByText('Edit')
+      );
+      fireEvent.click(editButtonAfterClickingSave);
+
+      displayInput = container.querySelector('input');
+      fireEvent.change(displayInput, {
+        target: { value: 'display1-update-second-time' }
+      });
+      const cancelButton = queryByText('Cancel');
+      fireEvent.click(cancelButton);
+
+      const lastSavedData = container.querySelector('h4');
+
+      expect(lastSavedData).toHaveTextContent('display1-update@user1');
+    });
   });
 });
 
