@@ -2,6 +2,7 @@ import React from 'react';
 import logo from '../assets/hoaxify-logo.png';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import ProfileImageWithDefault from './ProfileImageWithDefault';
 
 class TopBar extends React.Component {
   onClickLogout = () => {
@@ -29,6 +30,15 @@ class TopBar extends React.Component {
     if (this.props.user.isLoggedIn) {
       links = (
         <ul className="nav navbar-nav ml-auto">
+          <li className="nav-item nav-link">
+            <ProfileImageWithDefault
+              className="rounded-circle"
+              width="32"
+              height="32"
+              image={this.props.user.image}
+            />
+            {this.props.user.displayName}
+          </li>
           <li
             className="nav-item nav-link"
             onClick={this.onClickLogout}

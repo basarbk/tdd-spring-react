@@ -69,6 +69,17 @@ describe('TopBar', () => {
       const profileLink = queryByText('My Profile');
       expect(profileLink.getAttribute('href')).toBe('/user1');
     });
+    it('displays the displayName when user logged in', () => {
+      const { queryByText } = setup(loggedInState);
+      const displayName = queryByText('display1');
+      expect(displayName).toBeInTheDocument();
+    });
+    it('displays users image when user logged in', () => {
+      const { container } = setup(loggedInState);
+      const images = container.querySelectorAll('img');
+      const userImage = images[1];
+      expect(userImage.src).toContain('/images/profile/' + loggedInState.image);
+    });
   });
   describe('Interactions', () => {
     it('displays the login and signup links when user clicks logout', () => {
