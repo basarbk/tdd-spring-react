@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import authReducer from '../redux/authReducer';
+import * as authActions from '../redux/authActions';
 
 const loggedInState = {
   id: 1,
@@ -24,8 +25,10 @@ const defaultState = {
   isLoggedIn: false
 };
 
+let store;
+
 const setup = (state = defaultState) => {
-  const store = createStore(authReducer, state);
+  store = createStore(authReducer, state);
   return render(
     <Provider store={store}>
       <MemoryRouter>
@@ -88,6 +91,46 @@ describe('TopBar', () => {
       fireEvent.click(logoutLink);
       const loginLink = queryByText('Login');
       expect(loginLink).toBeInTheDocument();
+    });
+    it('adds show class to drop down menu when clicking username', () => {
+      const { queryByText, queryByTestId } = setup(loggedInState);
+      const displayName = queryByText('display1');
+      fireEvent.click(displayName);
+      const dropDownMenu = queryByTestId('drop-down-menu');
+      expect(dropDownMenu).toHaveClass('show');
+    });
+    it('removes show class to drop down menu when clicking app log', () => {
+      const { queryByText, queryByTestId, container } = setup(loggedInState);
+      const displayName = queryByText('display1');
+      fireEvent.click(displayName);
+
+      const logo = container.querySelector('img');
+      fireEvent.click(logo);
+
+      const dropDownMenu = queryByTestId('drop-down-menu');
+      expect(dropDownMenu).not.toHaveClass('show');
+    });
+    it('removes show class to drop down menu when clicking logout', () => {
+      const { queryByText, queryByTestId } = setup(loggedInState);
+      const displayName = queryByText('display1');
+      fireEvent.click(displayName);
+
+      fireEvent.click(queryByText('Logout'));
+
+      store.dispatch(authActions.loginSuccess(loggedInState));
+
+      const dropDownMenu = queryByTestId('drop-down-menu');
+      expect(dropDownMenu).not.toHaveClass('show');
+    });
+    it('removes show class to drop down menu when clicking My Profile', () => {
+      const { queryByText, queryByTestId } = setup(loggedInState);
+      const displayName = queryByText('display1');
+      fireEvent.click(displayName);
+
+      fireEvent.click(queryByText('My Profile'));
+
+      const dropDownMenu = queryByTestId('drop-down-menu');
+      expect(dropDownMenu).not.toHaveClass('show');
     });
   });
 });
