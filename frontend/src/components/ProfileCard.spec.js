@@ -34,5 +34,17 @@ describe('ProfileCard', () => {
       const image = container.querySelector('img');
       expect(image.src).toContain('/images/profile/' + user.image);
     });
+    it('displays edit button when isEditable property set as true', () => {
+      const { queryByText } = render(
+        <ProfileCard user={user} isEditable={true} />
+      );
+      const editButton = queryByText('Edit');
+      expect(editButton).toBeInTheDocument();
+    });
+    it('does not display edit button when isEditable not provided', () => {
+      const { queryByText } = render(<ProfileCard user={user} />);
+      const editButton = queryByText('Edit');
+      expect(editButton).not.toBeInTheDocument();
+    });
   });
 });
