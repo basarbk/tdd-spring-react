@@ -29,7 +29,10 @@ const ProfileCard = (props) => {
           </div>
         )}
         {showEditButton && (
-          <button className="btn btn-outline-success">
+          <button
+            className="btn btn-outline-success"
+            onClick={props.onClickEdit}
+          >
             <i className="fas fa-user-edit" /> Edit
           </button>
         )}
@@ -38,7 +41,10 @@ const ProfileCard = (props) => {
             <button className="btn btn-primary">
               <i className="fas fa-save" /> Save
             </button>
-            <button className="btn btn-outline-secondary ml-1">
+            <button
+              className="btn btn-outline-secondary ml-1"
+              onClick={props.onClickCancel}
+            >
               <i className="fas fa-window-close" /> Cancel
             </button>
           </div>
