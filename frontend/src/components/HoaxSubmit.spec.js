@@ -339,6 +339,12 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
     });
     it('displays image component when file selected', async () => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
       const { container } = setup();
       const textArea = container.querySelector('textarea');
       fireEvent.focus(textArea);
@@ -358,6 +364,12 @@ describe('HoaxSubmit', () => {
       expect(attachmentImage.src).toContain('data:image/png;base64');
     });
     it('removes selected image after clicking cancel', async () => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
       const { queryByText, container } = setupFocused();
 
       const uploadInput = container.querySelector('input');
@@ -375,6 +387,154 @@ describe('HoaxSubmit', () => {
 
       const images = container.querySelectorAll('img');
       expect(images.length).toBe(1);
+    });
+    it('calls postHoaxFile when file selected', async () => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
+
+      const { container } = setupFocused();
+
+      const uploadInput = container.querySelector('input');
+      expect(uploadInput.type).toBe('file');
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+      expect(apiCalls.postHoaxFile).toHaveBeenCalledTimes(1);
+    });
+    it('calls postHoaxFile with selected file', async (done) => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
+
+      const { container } = setupFocused();
+
+      const uploadInput = container.querySelector('input');
+      expect(uploadInput.type).toBe('file');
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+
+      const body = apiCalls.postHoaxFile.mock.calls[0][0];
+
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        expect(reader.result).toBe('dummy content');
+        done();
+      };
+      reader.readAsText(body.get('file'));
+    });
+    it('calls postHoax with hoax with file attachment object when clicking Hoaxify', async () => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
+      const { queryByText, container } = setupFocused();
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      const uploadInput = container.querySelector('input');
+      expect(uploadInput.type).toBe('file');
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+
+      const hoaxifyButton = queryByText('Hoaxify');
+
+      apiCalls.postHoax = jest.fn().mockResolvedValue({});
+      fireEvent.click(hoaxifyButton);
+
+      expect(apiCalls.postHoax).toHaveBeenCalledWith({
+        content: 'Test hoax content',
+        attachment: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
+    });
+    it('clears image after postHoax success', async () => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
+      const { queryByText, container } = setupFocused();
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      const uploadInput = container.querySelector('input');
+      expect(uploadInput.type).toBe('file');
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+
+      const hoaxifyButton = queryByText('Hoaxify');
+
+      apiCalls.postHoax = jest.fn().mockResolvedValue({});
+      fireEvent.click(hoaxifyButton);
+
+      await waitForDomChange();
+
+      fireEvent.focus(textArea);
+      const images = container.querySelectorAll('img');
+      expect(images.length).toBe(1);
+    });
+    it('calls postHoax without file attachment after cancelling previous file selection', async () => {
+      apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          name: 'random-name.png'
+        }
+      });
+      const { queryByText, container } = setupFocused();
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      const uploadInput = container.querySelector('input');
+      expect(uploadInput.type).toBe('file');
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+
+      fireEvent.click(queryByText('Cancel'));
+      fireEvent.focus(textArea);
+
+      const hoaxifyButton = queryByText('Hoaxify');
+
+      apiCalls.postHoax = jest.fn().mockResolvedValue({});
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+      fireEvent.click(hoaxifyButton);
+
+      expect(apiCalls.postHoax).toHaveBeenCalledWith({
+        content: 'Test hoax content'
+      });
     });
   });
 });
