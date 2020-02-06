@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitForDomChange } from '@testing-library/react';
 import HoaxSubmit from './HoaxSubmit';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import authReducer from '../redux/authReducer';
+import * as apiCalls from '../api/apiCalls';
 
 const defaultState = {
   id: 1,
@@ -86,6 +87,59 @@ describe('HoaxSubmit', () => {
       const cancelButton = queryByText('Cancel');
       fireEvent.click(cancelButton);
       expect(queryByText('Cancel')).not.toBeInTheDocument();
+    });
+    it('calls postHoax with hoax request object when clicking Hoaxify', () => {
+      const { container, queryByText } = setup();
+      const textArea = container.querySelector('textarea');
+      fireEvent.focus(textArea);
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      const hoaxifyButton = queryByText('Hoaxify');
+
+      apiCalls.postHoax = jest.fn().mockResolvedValue({});
+      fireEvent.click(hoaxifyButton);
+
+      expect(apiCalls.postHoax).toHaveBeenCalledWith({
+        content: 'Test hoax content'
+      });
+    });
+    it('returns back to unfocused state after successful postHoax action', async () => {
+      const { container, queryByText } = setup();
+      const textArea = container.querySelector('textarea');
+      fireEvent.focus(textArea);
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      const hoaxifyButton = queryByText('Hoaxify');
+
+      apiCalls.postHoax = jest.fn().mockResolvedValue({});
+      fireEvent.click(hoaxifyButton);
+
+      await waitForDomChange();
+      expect(queryByText('Hoaxify')).not.toBeInTheDocument();
+    });
+    it('clear content after successful postHoax action', async () => {
+      const { container, queryByText } = setup();
+      const textArea = container.querySelector('textarea');
+      fireEvent.focus(textArea);
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      const hoaxifyButton = queryByText('Hoaxify');
+
+      apiCalls.postHoax = jest.fn().mockResolvedValue({});
+      fireEvent.click(hoaxifyButton);
+
+      await waitForDomChange();
+      expect(queryByText('Test hoax content')).not.toBeInTheDocument();
+    });
+    it('clears content after clicking cancel', () => {
+      const { container, queryByText } = setup();
+      const textArea = container.querySelector('textarea');
+      fireEvent.focus(textArea);
+      fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
+
+      fireEvent.click(queryByText('Cancel'));
+
+      expect(queryByText('Test hoax content')).not.toBeInTheDocument();
     });
   });
 });
