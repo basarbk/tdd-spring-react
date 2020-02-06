@@ -1,6 +1,7 @@
 package com.hoaxify.hoaxify.hoax;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,10 @@ public class HoaxService {
 	public Page<Hoax> getOldHoaxesOfUser(long id, String username, Pageable pageable) {
 		User inDB = userService.getByUsername(username);
 		return hoaxRepository.findByIdLessThanAndUser(id, inDB, pageable);
+	}
+
+	public List<Hoax> getNewHoaxes(long id, Pageable pageable) {
+		return hoaxRepository.findByIdGreaterThan(id, pageable.getSort());
 	}
 
 }

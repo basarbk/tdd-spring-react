@@ -1,15 +1,20 @@
 package com.hoaxify.hoaxify.hoax;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hoaxify.hoaxify.hoax.vm.HoaxVM;
@@ -40,8 +45,14 @@ public class HoaxController {
 	}
 	
 	@GetMapping("/hoaxes/{id:[0-9]+}")
-	Page<?> getHoaxesRelative(@PathVariable long id, Pageable pageable) {
-		return hoaxService.getOldHoaxes(id, pageable).map(HoaxVM::new);
+	ResponseEntity<?> getHoaxesRelative(@PathVariable long id, Pageable pageable,
+			@RequestParam(name="direction", defaultValue="after") String direction) {
+		if(!direction.equalsIgnoreCase("after")) {			
+			return ResponseEntity.ok(hoaxService.getOldHoaxes(id, pageable).map(HoaxVM::new));
+		}
+		List<HoaxVM> newHoaxes = hoaxService.getNewHoaxes(id, pageable).stream()
+				.map(HoaxVM::new).collect(Collectors.toList());
+		return ResponseEntity.ok(newHoaxes);
 	}
 	
 	@GetMapping("/users/{username}/hoaxes/{id:[0-9]+}")
