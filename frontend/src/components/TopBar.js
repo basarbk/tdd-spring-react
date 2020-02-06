@@ -30,28 +30,35 @@ class TopBar extends React.Component {
     if (this.props.user.isLoggedIn) {
       links = (
         <ul className="nav navbar-nav ml-auto">
-          <li className="nav-item nav-link">
-            <ProfileImageWithDefault
-              className="rounded-circle"
-              width="32"
-              height="32"
-              image={this.props.user.image}
-            />
-            {this.props.user.displayName}
-          </li>
-          <li
-            className="nav-item nav-link"
-            onClick={this.onClickLogout}
-            style={{
-              cursor: 'pointer'
-            }}
-          >
-            Logout
-          </li>
-          <li className="nav-item">
-            <Link to={`/${this.props.user.username}`} className="nav-link">
-              My Profile
-            </Link>
+          <li className="nav-item dropdown">
+            <div className="d-flex" style={{ cursor: 'pointer' }}>
+              <ProfileImageWithDefault
+                className="rounded-circle m-auto"
+                width="32"
+                height="32"
+                image={this.props.user.image}
+              />
+              <span className="nav-link dropdown-toggle">
+                {this.props.user.displayName}
+              </span>
+            </div>
+            <div className="p-0 shadow dropdown-menu">
+              <Link
+                to={`/${this.props.user.username}`}
+                className="dropdown-item"
+              >
+                <i className="fas fa-user text-info"></i> My Profile
+              </Link>
+              <span
+                className="dropdown-item"
+                onClick={this.onClickLogout}
+                style={{
+                  cursor: 'pointer'
+                }}
+              >
+                <i className="fas fa-sign-out-alt text-danger"></i> Logout
+              </span>
+            </div>
           </li>
         </ul>
       );
