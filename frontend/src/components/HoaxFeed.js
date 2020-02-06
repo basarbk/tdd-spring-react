@@ -52,6 +52,19 @@ class HoaxFeed extends Component {
       });
   };
 
+  onClickLoadNew = () => {
+    const hoaxes = this.state.page.content;
+    let topHoaxId = 0;
+    if (hoaxes.length > 0) {
+      topHoaxId = hoaxes[0].id;
+    }
+    apiCalls.loadNewHoaxes(topHoaxId, this.props.user).then((response) => {
+      const page = { ...this.state.page };
+      page.content = [...response.data, ...page.content];
+      this.setState({ page, newHoaxCount: 0 });
+    });
+  };
+
   render() {
     if (this.state.isLoadingHoaxes) {
       return <Spinner />;
@@ -65,7 +78,11 @@ class HoaxFeed extends Component {
     return (
       <div>
         {this.state.newHoaxCount > 0 && (
-          <div className="card card-header text-center">
+          <div
+            className="card card-header text-center"
+            onClick={this.onClickLoadNew}
+            style={{ cursor: 'pointer' }}
+          >
             {this.state.newHoaxCount === 1
               ? 'There is 1 new hoax'
               : `There are ${this.state.newHoaxCount} new hoaxes`}

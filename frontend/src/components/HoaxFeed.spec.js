@@ -46,6 +46,22 @@ const mockEmptyResponse = {
   }
 };
 
+const mockSuccessGetNewHoaxesList = {
+  data: [
+    {
+      id: 21,
+      content: 'This is the newest hoax',
+      date: 1561294668539,
+      user: {
+        id: 1,
+        username: 'user1',
+        displayName: 'display1',
+        image: 'profile1.png'
+      }
+    }
+  ]
+};
+
 const mockSuccessGetHoaxesSinglePage = {
   data: {
     content: [
@@ -345,6 +361,96 @@ describe('HoaxFeed', () => {
       fireEvent.click(loadMore);
       await waitForElement(() => queryByText('This is the oldest hoax'));
       expect(queryByText('Load More')).not.toBeInTheDocument();
+    });
+    // load new hoaxes
+    it('calls loadNewHoaxes with hoax id when clicking New Hoax Count Card', async () => {
+      useFakeIntervals();
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      apiCalls.loadNewHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetNewHoaxesList);
+      const { queryByText } = setup();
+      await waitForDomChange();
+      runTimer();
+      const newHoaxCount = await waitForElement(() =>
+        queryByText('There is 1 new hoax')
+      );
+      fireEvent.click(newHoaxCount);
+      const firstParam = apiCalls.loadNewHoaxes.mock.calls[0][0];
+      expect(firstParam).toBe(10);
+      useRealIntervals();
+    });
+    it('calls loadNewHoaxes with hoax id and username when clicking New Hoax Count Card', async () => {
+      useFakeIntervals();
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      apiCalls.loadNewHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetNewHoaxesList);
+      const { queryByText } = setup({ user: 'user1' });
+      await waitForDomChange();
+      runTimer();
+      const newHoaxCount = await waitForElement(() =>
+        queryByText('There is 1 new hoax')
+      );
+      fireEvent.click(newHoaxCount);
+      expect(apiCalls.loadNewHoaxes).toHaveBeenCalledWith(10, 'user1');
+      useRealIntervals();
+    });
+    it('displays loaded new hoax when loadNewHoaxes api call success', async () => {
+      useFakeIntervals();
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      apiCalls.loadNewHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetNewHoaxesList);
+      const { queryByText } = setup({ user: 'user1' });
+      await waitForDomChange();
+      runTimer();
+      const newHoaxCount = await waitForElement(() =>
+        queryByText('There is 1 new hoax')
+      );
+      fireEvent.click(newHoaxCount);
+      const newHoax = await waitForElement(() =>
+        queryByText('This is the newest hoax')
+      );
+      expect(newHoax).toBeInTheDocument();
+      useRealIntervals();
+    });
+    it('hides new hoax count when loadNewHoaxes api call success', async () => {
+      useFakeIntervals();
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      apiCalls.loadNewHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetNewHoaxesList);
+      const { queryByText } = setup({ user: 'user1' });
+      await waitForDomChange();
+      runTimer();
+      const newHoaxCount = await waitForElement(() =>
+        queryByText('There is 1 new hoax')
+      );
+      fireEvent.click(newHoaxCount);
+      await waitForElement(() => queryByText('This is the newest hoax'));
+      expect(queryByText('There is 1 new hoax')).not.toBeInTheDocument();
+      useRealIntervals();
     });
   });
 });
