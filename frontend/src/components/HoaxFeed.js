@@ -77,6 +77,14 @@ class HoaxFeed extends Component {
       });
   };
 
+  onClickDeleteHoax = (hoax) => {
+    this.setState({ hoaxToBeDeleted: hoax });
+  };
+
+  onClickModalCancel = () => {
+    this.setState({ hoaxToBeDeleted: undefined });
+  };
+
   render() {
     if (this.state.isLoadingHoaxes) {
       return <Spinner />;
@@ -104,7 +112,13 @@ class HoaxFeed extends Component {
           </div>
         )}
         {this.state.page.content.map((hoax) => {
-          return <HoaxView key={hoax.id} hoax={hoax} />;
+          return (
+            <HoaxView
+              key={hoax.id}
+              hoax={hoax}
+              onClickDelete={() => this.onClickDeleteHoax(hoax)}
+            />
+          );
         })}
         {this.state.page.last === false && (
           <div
@@ -117,7 +131,16 @@ class HoaxFeed extends Component {
             {this.state.isLoadingOldHoaxes ? <Spinner /> : 'Load More'}
           </div>
         )}
-        <Modal />
+        <Modal
+          visible={this.state.hoaxToBeDeleted && true}
+          onClickCancel={this.onClickModalCancel}
+          body={
+            this.state.hoaxToBeDeleted &&
+            `Are you sure to delete '${this.state.hoaxToBeDeleted.content}'?`
+          }
+          title="Delete!"
+          okButton="Delete Hoax"
+        />
       </div>
     );
   }

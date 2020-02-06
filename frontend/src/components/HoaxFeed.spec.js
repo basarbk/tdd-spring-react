@@ -662,6 +662,55 @@ describe('HoaxFeed', () => {
       expect(queryByText('There is 1 new hoax')).toBeInTheDocument();
       useRealIntervals();
     });
+    it('displays modal when clicking delete on hoax', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      const { queryByTestId, container } = setup();
+      await waitForDomChange();
+      const deleteButton = container.querySelectorAll('button')[0];
+      fireEvent.click(deleteButton);
+
+      const modalRootDiv = queryByTestId('modal-root');
+      expect(modalRootDiv).toHaveClass('modal fade d-block show');
+    });
+    it('hides modal when clicking cancel', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      const { queryByTestId, container, queryByText } = setup();
+      await waitForDomChange();
+      const deleteButton = container.querySelectorAll('button')[0];
+      fireEvent.click(deleteButton);
+
+      fireEvent.click(queryByText('Cancel'));
+
+      const modalRootDiv = queryByTestId('modal-root');
+      expect(modalRootDiv).not.toHaveClass('d-block show');
+    });
+    it('displays modal with information about the action', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadNewHoaxCount = jest
+        .fn()
+        .mockResolvedValue({ data: { count: 1 } });
+      const { container, queryByText } = setup();
+      await waitForDomChange();
+      const deleteButton = container.querySelectorAll('button')[0];
+      fireEvent.click(deleteButton);
+
+      const message = queryByText(
+        `Are you sure to delete 'This is the latest hoax'?`
+      );
+      expect(message).toBeInTheDocument();
+    });
   });
 });
 

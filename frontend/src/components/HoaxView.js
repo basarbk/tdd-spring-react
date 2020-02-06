@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 class HoaxView extends Component {
   render() {
-    const { hoax } = this.props;
+    const { hoax, onClickDelete } = this.props;
     const { user, date } = hoax;
     const { username, displayName, image } = user;
     const relativeDate = format(date);
@@ -33,7 +33,10 @@ class HoaxView extends Component {
             <span className="text-black-50">{relativeDate}</span>
           </div>
           {ownedByLoggedInUser && (
-            <button className="btn btn-outline-danger btn-sm">
+            <button
+              className="btn btn-outline-danger btn-sm"
+              onClick={onClickDelete}
+            >
               <i className="far fa-trash-alt" />
             </button>
           )}
