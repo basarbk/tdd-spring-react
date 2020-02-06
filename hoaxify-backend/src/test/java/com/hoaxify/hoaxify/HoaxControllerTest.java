@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
@@ -27,6 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.hoax.Hoax;
 import com.hoaxify.hoaxify.hoax.HoaxRepository;
+import com.hoaxify.hoaxify.hoax.HoaxService;
 import com.hoaxify.hoaxify.user.User;
 import com.hoaxify.hoaxify.user.UserRepository;
 import com.hoaxify.hoaxify.user.UserService;
@@ -49,6 +52,9 @@ public class HoaxControllerTest {
 	
 	@Autowired
 	HoaxRepository hoaxRepository;
+	
+	@Autowired
+	HoaxService hoaxService;
 	
 	@PersistenceUnit
 	private EntityManagerFactory entityManagerFactory;
@@ -183,6 +189,34 @@ public class HoaxControllerTest {
 		assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
 		
 	}
+	
+	@Test
+	public void getHoaxes_whenThereAreNoHoaxes_receiveOk() {
+		ResponseEntity<Object> response = getHoaxes(new ParameterizedTypeReference<Object>() {});
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+	
+	@Test
+	public void getHoaxes_whenThereAreNoHoaxes_receivePageWithZeroItems() {
+		ResponseEntity<TestPage<Object>> response = getHoaxes(new ParameterizedTypeReference<TestPage<Object>>() {});
+		assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+	}
+
+	@Test
+	public void getHoaxes_whenThereAreHoaxes_receivePageWithItems() {
+		User user = userService.save(TestUtil.createValidUser("user1"));
+		hoaxService.save(user, TestUtil.createValidHoax());
+		hoaxService.save(user, TestUtil.createValidHoax());
+		hoaxService.save(user, TestUtil.createValidHoax());
+		
+		ResponseEntity<TestPage<Object>> response = getHoaxes(new ParameterizedTypeReference<TestPage<Object>>() {});
+		assertThat(response.getBody().getTotalElements()).isEqualTo(3);
+	}
+	
+	public <T> ResponseEntity<T> getHoaxes(ParameterizedTypeReference<T> responseType){
+		return testRestTemplate.exchange(API_1_0_HOAXES, HttpMethod.GET, null, responseType);
+	}
+	
 	private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
 		return testRestTemplate.postForEntity(API_1_0_HOAXES, hoax, responseType);
 	}
