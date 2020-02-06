@@ -608,6 +608,27 @@ public class HoaxControllerTest {
 		
 	}
 
+	@Test
+	public void deleteHoax_whenHoaxIsOwnedByAnotherUser_receiveForbidden() {
+		userService.save(TestUtil.createValidUser("user1"));
+		authenticate("user1");
+		User hoaxOwner = userService.save(TestUtil.createValidUser("hoax-owner"));
+		Hoax hoax = hoaxService.save(hoaxOwner, TestUtil.createValidHoax());
+
+		ResponseEntity<Object> response = deleteHoax(hoax.getId(), Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+		
+	}
+
+	@Test
+	public void deleteHoax_whenHoaxNotExist_receiveForbidden() {
+		userService.save(TestUtil.createValidUser("user1"));
+		authenticate("user1");
+		ResponseEntity<Object> response = deleteHoax(5555, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+		
+	}
+
 	public <T> ResponseEntity<T> deleteHoax(long hoaxId, Class<T> responseType){
 		return testRestTemplate.exchange(API_1_0_HOAXES + "/" + hoaxId, HttpMethod.DELETE, null, responseType);
 	}
