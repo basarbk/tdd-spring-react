@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hoaxify.hoaxify.hoax.vm.HoaxVM;
 import com.hoaxify.hoaxify.shared.CurrentUser;
+import com.hoaxify.hoaxify.shared.GenericResponse;
 import com.hoaxify.hoaxify.user.User;
 
 @RestController
@@ -65,5 +67,14 @@ public class HoaxController {
 				.map(HoaxVM::new).collect(Collectors.toList());
 		return ResponseEntity.ok(newHoaxes);
 	}
+	
+	@DeleteMapping("/hoaxes/{id:[0-9]+}")
+	GenericResponse deleteHoax(@PathVariable long id) {
+		hoaxService.deleteHoax(id);
+		return new GenericResponse("Hoax is removed");
+	}
+	
+	
+	
 	
 }
