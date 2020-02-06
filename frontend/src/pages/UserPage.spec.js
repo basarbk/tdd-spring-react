@@ -347,6 +347,62 @@ describe('UserPage', () => {
         fireEvent.change(uploadInput, { target: { files: [] } })
       ).not.toThrow();
     });
+
+    it('calls updateUser api with request body having new image without data:image/png;base64', async () => {
+      const { queryByText, container } = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      const inputs = container.querySelectorAll('input');
+      const uploadInput = inputs[1];
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      const requestBody = apiCalls.updateUser.mock.calls[0][1];
+
+      expect(requestBody.image).not.toContain('data:image/png;base64');
+    });
+
+    it('returns to last updated image when image is change for another time but cancelled', async () => {
+      const { queryByText, container } = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      const inputs = container.querySelectorAll('input');
+      const uploadInput = inputs[1];
+
+      const file = new File(['dummy content'], 'example.png', {
+        type: 'image/png'
+      });
+
+      fireEvent.change(uploadInput, { target: { files: [file] } });
+
+      await waitForDomChange();
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      const editButtonAfterClickingSave = await waitForElement(() =>
+        queryByText('Edit')
+      );
+      fireEvent.click(editButtonAfterClickingSave);
+
+      const newFile = new File(['another content'], 'example2.png', {
+        type: 'image/png'
+      });
+
+      fireEvent.change(uploadInput, { target: { files: [newFile] } });
+
+      const cancelButton = queryByText('Cancel');
+      fireEvent.click(cancelButton);
+      const image = container.querySelector('img');
+      expect(image.src).toContain('/images/profile/profile1-update.png');
+    });
   });
 });
 

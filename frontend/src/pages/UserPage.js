@@ -63,16 +63,21 @@ class UserPage extends React.Component {
   onClickSave = () => {
     const userId = this.props.loggedInUser.id;
     const userUpdate = {
-      displayName: this.state.user.displayName
+      displayName: this.state.user.displayName,
+      image: this.state.image && this.state.image.split(',')[1]
     };
     this.setState({ pendingUpdateCall: true });
     apiCalls
       .updateUser(userId, userUpdate)
       .then((response) => {
+        const user = { ...this.state.user };
+        user.image = response.data.image;
         this.setState({
           inEditMode: false,
           originalDisplayName: undefined,
-          pendingUpdateCall: false
+          pendingUpdateCall: false,
+          user,
+          image: undefined
         });
       })
       .catch((error) => {
