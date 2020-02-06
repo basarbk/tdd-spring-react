@@ -54,4 +54,13 @@ describe('apiCalls', () => {
       expect(mockGetUser).toBeCalledWith('/api/1.0/users/user5');
     });
   });
+  describe('updateUser', () => {
+    it('calls /api/1.0/users/5 when 5 is provided for updateUser', () => {
+      const mockUpdateUser = jest.fn();
+      axios.put = mockUpdateUser;
+      apiCalls.updateUser('5');
+      const path = mockUpdateUser.mock.calls[0][0];
+      expect(path).toBe('/api/1.0/users/5');
+    });
+  });
 });

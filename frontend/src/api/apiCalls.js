@@ -26,3 +26,7 @@ export const listUsers = (param = { page: 0, size: 3 }) => {
 export const getUser = (username) => {
   return axios.get(`/api/1.0/users/${username}`);
 };
+
+export const updateUser = (userId, body) => {
+  return axios.put('/api/1.0/users/' + userId, body);
+};
