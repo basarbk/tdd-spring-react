@@ -19,6 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.hoaxify.hoaxify.configuration.AppConfiguration;
 
@@ -86,6 +87,21 @@ public class StaticResourceTest {
 	public void getStaticFile_whenImageDoesNotExist_receiveNotFound() throws Exception {
 		mockMvc.perform(get("/images/"+appConfiguration.getAttachmentsFolder()+"/there-is-no-such-image.png"))
 			.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void getStaticFile_whenImageExistInAttachmentFolder_receiveOkWithCacheHeaders() throws Exception {
+		String fileName = "profile-picture.png";
+		File source = new ClassPathResource("profile.png").getFile();
+		
+		File target = new File(appConfiguration.getFullAttachmentsPath() + "/" + fileName);
+		FileUtils.copyFile(source, target);
+		
+		MvcResult result = mockMvc.perform(get("/images/"+appConfiguration.getAttachmentsFolder()+"/"+fileName)).andReturn();
+		
+		String cacheControl = result.getResponse().getHeaderValue("Cache-Control").toString();
+		assertThat(cacheControl).containsIgnoringCase("max-age=31536000");
+		
 	}
 	
 	@After
