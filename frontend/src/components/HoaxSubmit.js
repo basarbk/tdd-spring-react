@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import ProfileImageWithDefault from './ProfileImageWithDefault';
 import { connect } from 'react-redux';
 import * as apiCalls from '../api/apiCalls';
+import ButtonWithProgress from './ButtonWithProgress';
 
 class HoaxSubmit extends Component {
   state = {
     focused: false,
-    content: undefined
+    content: undefined,
+    pendingApiCall: false
   };
 
   onChangeContent = (event) => {
@@ -18,12 +20,19 @@ class HoaxSubmit extends Component {
     const body = {
       content: this.state.content
     };
-    apiCalls.postHoax(body).then((response) => {
-      this.setState({
-        focused: false,
-        content: ''
+    this.setState({ pendingApiCall: true });
+    apiCalls
+      .postHoax(body)
+      .then((response) => {
+        this.setState({
+          focused: false,
+          content: '',
+          pendingApiCall: false
+        });
+      })
+      .catch((error) => {
+        this.setState({ pendingApiCall: false });
       });
-    });
   };
 
   onFocus = () => {
@@ -58,12 +67,17 @@ class HoaxSubmit extends Component {
           />
           {this.state.focused && (
             <div className="text-right mt-1">
-              <button className="btn btn-success" onClick={this.onClickHoaxify}>
-                Hoaxify
-              </button>
+              <ButtonWithProgress
+                className="btn btn-success"
+                disabled={this.state.pendingApiCall}
+                onClick={this.onClickHoaxify}
+                pendingApiCall={this.state.pendingApiCall}
+                text="Hoaxify"
+              />
               <button
                 className="btn btn-light ml-1"
                 onClick={this.onClickCancel}
+                disabled={this.state.pendingApiCall}
               >
                 <i className="fas fa-times"></i> Cancel
               </button>
