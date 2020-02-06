@@ -41,3 +41,27 @@ export const loadHoaxes = (username) => {
     : '/api/1.0/hoaxes';
   return axios.get(basePath + '?page=0&size=5&sort=id,desc');
 };
+
+export const loadOldHoaxes = (hoaxId, username) => {
+  const basePath = username
+    ? `/api/1.0/users/${username}/hoaxes`
+    : '/api/1.0/hoaxes';
+  const path = `${basePath}/${hoaxId}?direction=before&page=0&size=5&sort=id,desc`;
+  return axios.get(path);
+};
+
+export const loadNewHoaxes = (hoaxId, username) => {
+  const basePath = username
+    ? `/api/1.0/users/${username}/hoaxes`
+    : '/api/1.0/hoaxes';
+  const path = `${basePath}/${hoaxId}?direction=after&sort=id,desc`;
+  return axios.get(path);
+};
+
+export const loadNewHoaxCount = (hoaxId, username) => {
+  const basePath = username
+    ? `/api/1.0/users/${username}/hoaxes`
+    : '/api/1.0/hoaxes';
+  const path = `${basePath}/${hoaxId}?direction=after&count=true`;
+  return axios.get(path);
+};
