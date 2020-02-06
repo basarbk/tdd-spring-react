@@ -1,23 +1,21 @@
 package com.hoaxify.hoaxify.file;
 
-import java.util.Date;
-import java.util.UUID;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/1.0")
 public class FileUploadController {
 	
+	@Autowired
+	FileService fileService;
+	
 	@PostMapping("/hoaxes/upload")
-	FileAttachment uploadForHoax() {
-		FileAttachment fileAttachment = new FileAttachment();
-		fileAttachment.setDate(new Date());
-		String randomName = UUID.randomUUID().toString().replaceAll("-", "");
-		fileAttachment.setName(randomName);
-		return fileAttachment;
+	FileAttachment uploadForHoax(MultipartFile file) {
+		return fileService.saveAttachment(file);
 	}
 
 }
