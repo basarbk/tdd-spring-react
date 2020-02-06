@@ -32,6 +32,9 @@ class HoaxFeed extends Component {
         {this.state.page.content.map((hoax) => {
           return <HoaxView key={hoax.id} hoax={hoax} />;
         })}
+        {this.state.page.last === false && (
+          <div className="card card-header text-center">Load More</div>
+        )}
       </div>
     );
   }
