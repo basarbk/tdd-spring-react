@@ -3,18 +3,36 @@ import ProfileImageWithDefault from './ProfileImageWithDefault';
 import { connect } from 'react-redux';
 import * as apiCalls from '../api/apiCalls';
 import ButtonWithProgress from './ButtonWithProgress';
+import Input from './Input';
 
 class HoaxSubmit extends Component {
   state = {
     focused: false,
     content: undefined,
     pendingApiCall: false,
-    errors: {}
+    errors: {},
+    file: undefined,
+    image: undefined
   };
 
   onChangeContent = (event) => {
     const value = event.target.value;
     this.setState({ content: value, errors: {} });
+  };
+
+  onFileSelect = (event) => {
+    if (event.target.files.length === 0) {
+      return;
+    }
+    const file = event.target.files[0];
+    let reader = new FileReader();
+    reader.onloadend = () => {
+      this.setState({
+        image: reader.result,
+        file
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   onClickHoaxify = () => {
@@ -50,7 +68,9 @@ class HoaxSubmit extends Component {
     this.setState({
       focused: false,
       content: '',
-      errors: {}
+      errors: {},
+      image: undefined,
+      file: undefined
     });
   };
 
@@ -81,21 +101,35 @@ class HoaxSubmit extends Component {
             </span>
           )}
           {this.state.focused && (
-            <div className="text-right mt-1">
-              <ButtonWithProgress
-                className="btn btn-success"
-                disabled={this.state.pendingApiCall}
-                onClick={this.onClickHoaxify}
-                pendingApiCall={this.state.pendingApiCall}
-                text="Hoaxify"
-              />
-              <button
-                className="btn btn-light ml-1"
-                onClick={this.onClickCancel}
-                disabled={this.state.pendingApiCall}
-              >
-                <i className="fas fa-times"></i> Cancel
-              </button>
+            <div>
+              <div className="pt-1">
+                <Input type="file" onChange={this.onFileSelect} />
+                {this.state.image && (
+                  <img
+                    className="mt-1 img-thumbnail"
+                    src={this.state.image}
+                    alt="upload"
+                    width="128"
+                    height="64"
+                  />
+                )}
+              </div>
+              <div className="text-right mt-1">
+                <ButtonWithProgress
+                  className="btn btn-success"
+                  disabled={this.state.pendingApiCall}
+                  onClick={this.onClickHoaxify}
+                  pendingApiCall={this.state.pendingApiCall}
+                  text="Hoaxify"
+                />
+                <button
+                  className="btn btn-light ml-1"
+                  onClick={this.onClickCancel}
+                  disabled={this.state.pendingApiCall}
+                >
+                  <i className="fas fa-times"></i> Cancel
+                </button>
+              </div>
             </div>
           )}
         </div>
