@@ -74,13 +74,22 @@ class UserPage extends React.Component {
       .then((response) => {
         const user = { ...this.state.user };
         user.image = response.data.image;
-        this.setState({
-          inEditMode: false,
-          originalDisplayName: undefined,
-          pendingUpdateCall: false,
-          user,
-          image: undefined
-        });
+        this.setState(
+          {
+            inEditMode: false,
+            originalDisplayName: undefined,
+            pendingUpdateCall: false,
+            user,
+            image: undefined
+          },
+          () => {
+            const action = {
+              type: 'update-success',
+              payload: user
+            };
+            this.props.dispatch(action);
+          }
+        );
       })
       .catch((error) => {
         let errors = {};
