@@ -2,6 +2,7 @@ import React from 'react';
 import * as apiCalls from '../api/apiCalls';
 import ProfileCard from '../components/ProfileCard';
 import { connect } from 'react-redux';
+import HoaxFeed from '../components/HoaxFeed';
 
 class UserPage extends React.Component {
   state = {
@@ -170,7 +171,16 @@ class UserPage extends React.Component {
         />
       );
     }
-    return <div data-testid="userpage">{pageContent}</div>;
+    return (
+      <div data-testid="userpage">
+        <div className="row">
+          <div className="col">{pageContent}</div>
+          <div className="col">
+            <HoaxFeed user={this.props.match.params.username} />
+          </div>
+        </div>
+      </div>
+    );
   }
 }
 UserPage.defaultProps = {
