@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as apiCalls from '../api/apiCalls';
 import Spinner from './Spinner';
 import HoaxView from './HoaxView';
-
+import Modal from './Modal';
 class HoaxFeed extends Component {
   state = {
     page: {
@@ -117,6 +117,7 @@ class HoaxFeed extends Component {
             {this.state.isLoadingOldHoaxes ? <Spinner /> : 'Load More'}
           </div>
         )}
+        <Modal />
       </div>
     );
   }
