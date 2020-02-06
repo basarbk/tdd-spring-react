@@ -115,9 +115,9 @@ describe('UserPage', () => {
         });
       });
       apiCalls.getUser = mockDelayedResponse;
-      const { queryByText } = setup({ match });
-      const spinner = queryByText('Loading...');
-      expect(spinner).toBeInTheDocument();
+      const { queryAllByText } = setup({ match });
+      const spinners = queryAllByText('Loading...');
+      expect(spinners.length).not.toBe(0);
     });
     it('displays the edit button when loggedInUser matches to user in url', async () => {
       setUserOneLoggedInStorage();
