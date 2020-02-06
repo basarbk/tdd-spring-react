@@ -2,7 +2,8 @@ import React from 'react';
 import {
   render,
   waitForDomChange,
-  waitForElement
+  waitForElement,
+  fireEvent
 } from '@testing-library/react';
 import HoaxFeed from './HoaxFeed';
 import * as apiCalls from '../api/apiCalls';
@@ -58,6 +59,17 @@ const mockSuccessGetHoaxesFirstOfMultiPage = {
           displayName: 'display1',
           image: 'profile1.png'
         }
+      },
+      {
+        id: 9,
+        content: 'This is hoax 9',
+        date: 1561294668539,
+        user: {
+          id: 1,
+          username: 'user1',
+          displayName: 'display1',
+          image: 'profile1.png'
+        }
       }
     ],
     number: 0,
@@ -68,6 +80,28 @@ const mockSuccessGetHoaxesFirstOfMultiPage = {
   }
 };
 
+const mockSuccessGetHoaxesLastOfMultiPage = {
+  data: {
+    content: [
+      {
+        id: 1,
+        content: 'This is the oldest hoax',
+        date: 1561294668539,
+        user: {
+          id: 1,
+          username: 'user1',
+          displayName: 'display1',
+          image: 'profile1.png'
+        }
+      }
+    ],
+    number: 0,
+    first: true,
+    last: true,
+    size: 5,
+    totalPages: 2
+  }
+};
 describe('HoaxFeed', () => {
   describe('Lifecycle', () => {
     it('calls loadHoaxes when it is rendered', () => {
@@ -134,4 +168,61 @@ describe('HoaxFeed', () => {
       expect(loadMore).toBeInTheDocument();
     });
   });
+  describe('Interactions', () => {
+    it('calls loadOldHoaxes with hoax id when clicking Load More', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadOldHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage);
+      const { queryByText } = setup();
+      const loadMore = await waitForElement(() => queryByText('Load More'));
+      fireEvent.click(loadMore);
+      const firstParam = apiCalls.loadOldHoaxes.mock.calls[0][0];
+      expect(firstParam).toBe(9);
+    });
+    it('calls loadOldHoaxes with hoax id and username when clicking Load More when rendered with user property', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadOldHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage);
+      const { queryByText } = setup({ user: 'user1' });
+      const loadMore = await waitForElement(() => queryByText('Load More'));
+      fireEvent.click(loadMore);
+      expect(apiCalls.loadOldHoaxes).toHaveBeenCalledWith(9, 'user1');
+    });
+    it('displays loaded old hoax when loadOldHoaxes api call success', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadOldHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage);
+      const { queryByText } = setup();
+      const loadMore = await waitForElement(() => queryByText('Load More'));
+      fireEvent.click(loadMore);
+      const oldHoax = await waitForElement(() =>
+        queryByText('This is the oldest hoax')
+      );
+      expect(oldHoax).toBeInTheDocument();
+    });
+    it('hides Load More when loadOldHoaxes api call returns last page', async () => {
+      apiCalls.loadHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage);
+      apiCalls.loadOldHoaxes = jest
+        .fn()
+        .mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage);
+      const { queryByText } = setup();
+      const loadMore = await waitForElement(() => queryByText('Load More'));
+      fireEvent.click(loadMore);
+      await waitForElement(() => queryByText('This is the oldest hoax'));
+      expect(queryByText('Load More')).not.toBeInTheDocument();
+    });
+  });
 });
+
+console.error = () => {};
