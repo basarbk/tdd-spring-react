@@ -6,9 +6,14 @@ import {
 } from '@testing-library/react';
 import HoaxFeed from './HoaxFeed';
 import * as apiCalls from '../api/apiCalls';
+import { MemoryRouter } from 'react-router-dom';
 
 const setup = (props) => {
-  return render(<HoaxFeed {...props} />);
+  return render(
+    <MemoryRouter>
+      <HoaxFeed {...props} />
+    </MemoryRouter>
+  );
 };
 
 const mockEmptyResponse = {

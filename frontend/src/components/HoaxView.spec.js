@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import HoaxView from './HoaxView';
+import { MemoryRouter } from 'react-router-dom';
 
 const setup = () => {
   const oneMinute = 60 * 1000;
@@ -17,7 +18,11 @@ const setup = () => {
       image: 'profile1.png'
     }
   };
-  return render(<HoaxView hoax={hoax} />);
+  return render(
+    <MemoryRouter>
+      <HoaxView hoax={hoax} />
+    </MemoryRouter>
+  );
 };
 
 describe('HoaxView', () => {
@@ -38,6 +43,11 @@ describe('HoaxView', () => {
     it('displays relative time', () => {
       const { queryByText } = setup();
       expect(queryByText('1 minute ago')).toBeInTheDocument();
+    });
+    it('has link to user page', () => {
+      const { container } = setup();
+      const anchor = container.querySelector('a');
+      expect(anchor.getAttribute('href')).toBe('/user1');
     });
   });
 });
