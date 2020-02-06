@@ -63,4 +63,13 @@ describe('apiCalls', () => {
       expect(path).toBe('/api/1.0/users/5');
     });
   });
+  describe('postHoax', () => {
+    it('calls /api/1.0/hoaxes', () => {
+      const mockPostHoax = jest.fn();
+      axios.post = mockPostHoax;
+      apiCalls.postHoax();
+      const path = mockPostHoax.mock.calls[0][0];
+      expect(path).toBe('/api/1.0/hoaxes');
+    });
+  });
 });
