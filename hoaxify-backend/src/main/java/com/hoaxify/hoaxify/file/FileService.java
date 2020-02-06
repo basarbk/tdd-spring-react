@@ -21,10 +21,13 @@ public class FileService {
 	AppConfiguration appConfiguration;
 	
 	Tika tika;
+	
+	FileAttachmentRepository fileAttachmentRepository;
 
-	public FileService(AppConfiguration appConfiguration) {
+	public FileService(AppConfiguration appConfiguration, FileAttachmentRepository fileAttachmentRepository) {
 		super();
 		this.appConfiguration = appConfiguration;
+		this.fileAttachmentRepository = fileAttachmentRepository;
 		tika = new Tika();
 	}
 	
@@ -64,11 +67,12 @@ public class FileService {
 		try {
 			byte[] fileAsByte = file.getBytes();
 			FileUtils.writeByteArrayToFile(target, fileAsByte);
+			fileAttachment.setFileType(detectType(fileAsByte));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return fileAttachment;
+		return fileAttachmentRepository.save(fileAttachment);
 	}
 
 }

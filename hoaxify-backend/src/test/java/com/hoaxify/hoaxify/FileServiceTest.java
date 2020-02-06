@@ -30,7 +30,7 @@ public class FileServiceTest {
 		appConfiguration = new AppConfiguration();
 		appConfiguration.setUploadPath("uploads-test");
 		
-		fileService = new FileService(appConfiguration);
+		fileService = new FileService(appConfiguration, null);
 		
 		new File(appConfiguration.getUploadPath()).mkdir();
 		new File(appConfiguration.getFullProfileImagesPath()).mkdir();
