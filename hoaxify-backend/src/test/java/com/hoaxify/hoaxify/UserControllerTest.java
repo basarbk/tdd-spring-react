@@ -11,10 +11,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.hoaxify.hoaxify.configuration.AppConfiguration;
 import com.hoaxify.hoaxify.error.ApiError;
@@ -38,7 +36,6 @@ import com.hoaxify.hoaxify.user.UserService;
 import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 import com.hoaxify.hoaxify.user.vm.UserVM;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class UserControllerTest {
@@ -57,7 +54,7 @@ public class UserControllerTest {
 	@Autowired
 	AppConfiguration appConfiguration;
 	
-	@Before
+	@BeforeEach
 	public void cleanup() {
 		userRepository.deleteAll();
 		testRestTemplate.getRestTemplate().getInterceptors().clear();
@@ -603,7 +600,7 @@ public class UserControllerTest {
 		return testRestTemplate.exchange(path, HttpMethod.PUT, requestEntity, responseType);
 	}
 	
-	@After
+	@AfterEach
 	public void cleanDirectory() throws IOException {
 		FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));
 		FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));

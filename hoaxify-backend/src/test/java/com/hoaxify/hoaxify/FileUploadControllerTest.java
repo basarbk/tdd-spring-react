@@ -6,9 +6,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -22,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -32,7 +30,6 @@ import com.hoaxify.hoaxify.file.FileAttachmentRepository;
 import com.hoaxify.hoaxify.user.UserRepository;
 import com.hoaxify.hoaxify.user.UserService;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class FileUploadControllerTest {
@@ -54,7 +51,7 @@ public class FileUploadControllerTest {
 	@Autowired
 	FileAttachmentRepository fileAttachmentRepository;
 	
-	@Before
+	@BeforeEach
 	public void init() throws IOException {
 		userRepository.deleteAll();
 		fileAttachmentRepository.deleteAll();
