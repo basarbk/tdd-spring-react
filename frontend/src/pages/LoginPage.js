@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { connect } from 'react-redux';
@@ -10,17 +10,9 @@ export const LoginPage = (props) => {
   const [apiError, setApiError] = useState();
   const [pendingApiCall, setPendingApiCall] = useState(false);
 
-  const onChangeUsername = (event) => {
-    const value = event.target.value;
-    setUsername(value);
+  useEffect(() => {
     setApiError();
-  };
-
-  const onChangePassword = (event) => {
-    const value = event.target.value;
-    setPassword(value);
-    setApiError();
-  };
+  }, [username, password]);
 
   const onClickLogin = () => {
     const body = {
@@ -58,7 +50,9 @@ export const LoginPage = (props) => {
           label="Username"
           placeholder="Your username"
           value={username}
-          onChange={onChangeUsername}
+          onChange={(event) => {
+            setUsername(event.target.value);
+          }}
         />
       </div>
       <div className="col-12 mb-3">
@@ -67,7 +61,7 @@ export const LoginPage = (props) => {
           placeholder="Your password"
           type="password"
           value={password}
-          onChange={onChangePassword}
+          onChange={(event) => setPassword(event.target.value)}
         />
       </div>
       {apiError && (
