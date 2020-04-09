@@ -1,19 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import * as apiCalls from '../api/apiCalls';
 import ProfileCard from '../components/ProfileCard';
 import { connect } from 'react-redux';
 import HoaxFeed from '../components/HoaxFeed';
 import Spinner from '../components/Spinner';
 
+const reducer = (state, action) => {
+  if (action.type === 'loading-user') {
+    return {
+      ...state,
+      isLoadingUser: true,
+      userNotFound: false,
+    };
+  } else if (action.type === 'load-user-success') {
+    return {
+      ...state,
+      isLoadingUser: false,
+      user: action.payload,
+    };
+  } else if (action.type === 'load-user-failure') {
+    return {
+      ...state,
+      isLoadingUser: false,
+      userNotFound: true,
+    };
+  } else if (action.type === 'cancel') {
+    let displayName = state.user.displayName;
+    if (state.originalDisplayName) {
+      displayName = state.originalDisplayName;
+    }
+    return {
+      ...state,
+      inEditMode: false,
+      image: undefined,
+      errors: {},
+      user: {
+        ...state.user,
+        displayName,
+      },
+      originalDisplayName: undefined,
+    };
+  } else if (action.type === 'update-progress') {
+    return {
+      ...state,
+      pendingUpdateCall: true,
+    };
+  } else if (action.type === 'update-success') {
+    return {
+      ...state,
+      inEditMode: false,
+      originalDisplayName: undefined,
+      image: undefined,
+      pendingUpdateCall: false,
+      user: {
+        ...state.user,
+        image: action.payload,
+      },
+    };
+  } else if (action.type === 'update-failure') {
+    return {
+      ...state,
+      pendingUpdateCall: false,
+      errors: action.payload,
+    };
+  } else if (action.type === 'update-displayName') {
+    let originalDisplayName = state.originalDisplayName;
+    if (!originalDisplayName) {
+      originalDisplayName = state.user.displayName;
+    }
+    const errors = state.errors;
+    errors.displayName = undefined;
+    return {
+      ...state,
+      errors,
+      originalDisplayName,
+      user: {
+        ...state.user,
+        displayName: action.payload,
+      },
+    };
+  } else if (action.type === 'select-file') {
+    const errors = state.errors;
+    errors.image = undefined;
+    return {
+      ...state,
+      errors,
+      image: action.payload,
+    };
+  } else if (action.type === 'edit-mode') {
+    return {
+      ...state,
+      inEditMode: true,
+    };
+  }
+  return state;
+};
+
 const UserPage = (props) => {
-  const [user, setUser] = useState();
-  const [userNotFound, setUserNotFound] = useState(false);
-  const [isLoadingUser, setLoadingUser] = useState(false);
-  const [inEditMode, setInEditMode] = useState(false);
-  const [originalDisplayName, setOriginalDisplayName] = useState();
-  const [pendingUpdateCall, setPendingUpdateCall] = useState(false);
-  const [image, setImage] = useState();
-  const [errors, setErrors] = useState({});
+  const [state, dispatch] = useReducer(reducer, {
+    user: undefined,
+    userNotFound: false,
+    isLoadingUser: false,
+    inEditMode: false,
+    originalDisplayName: undefined,
+    pendingUpdateCall: false,
+    image: undefined,
+    errors: {},
+  });
 
   useEffect(() => {
     const loadUser = () => {
@@ -21,72 +114,35 @@ const UserPage = (props) => {
       if (!username) {
         return;
       }
-      setUserNotFound(false);
-      setLoadingUser(true);
+      dispatch({ type: 'loading-user' });
       apiCalls
         .getUser(username)
         .then((response) => {
-          setUser(response.data);
-          setLoadingUser(false);
+          dispatch({ type: 'load-user-success', payload: response.data });
         })
         .catch((error) => {
-          setUserNotFound(true);
-          setLoadingUser(false);
+          dispatch({ type: 'load-user-failure' });
         });
     };
     loadUser();
   }, [props.match.params.username]);
-  // state = {
-  //   user: undefined,
-  //   userNotFound: false,
-  //   isLoadingUser: false,
-  //   inEditMode: false,
-  //   originalDisplayName: undefined,
-  //   pendingUpdateCall: false,
-  //   image: undefined,
-  //   errors: {}
-  // };
-  // componentDidMount() {
-  //   this.loadUser();
-  // }
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.match.params.username !== this.props.match.params.username) {
-  //     this.loadUser();
-  //   }
-  // }
-
-  const onClickCancel = () => {
-    const updatedUser = { ...user };
-    if (originalDisplayName !== undefined) {
-      updatedUser.displayName = originalDisplayName;
-    }
-    setUser(updatedUser);
-    setErrors({});
-    setOriginalDisplayName();
-    setInEditMode(false);
-    setImage();
-  };
 
   const onClickSave = () => {
     const userId = props.loggedInUser.id;
     const userUpdate = {
-      displayName: user.displayName,
-      image: image && image.split(',')[1]
+      displayName: state.user.displayName,
+      image: state.image && state.image.split(',')[1],
     };
-    setPendingUpdateCall(true);
+    dispatch({ type: 'update-progress' });
     apiCalls
       .updateUser(userId, userUpdate)
       .then((response) => {
-        const updatedUser = { ...user };
+        dispatch({ type: 'update-success', payload: response.data.image });
+        const updatedUser = { ...state.user };
         updatedUser.image = response.data.image;
-        setUser(updatedUser);
-        setInEditMode(false);
-        setOriginalDisplayName();
-        setImage();
-        setPendingUpdateCall(false);
         const action = {
           type: 'update-success',
-          payload: updatedUser
+          payload: updatedUser,
         };
         props.dispatch(action);
       })
@@ -95,42 +151,26 @@ const UserPage = (props) => {
         if (error.response.data.validationErrors) {
           errors = error.response.data.validationErrors;
         }
-        setPendingUpdateCall(false);
-        setErrors(errors);
+        dispatch({ type: 'update-failure', payload: errors });
       });
-  };
-
-  const onChangeDisplayName = (event) => {
-    const updatedUser = { ...user };
-    if (originalDisplayName === undefined) {
-      setOriginalDisplayName(user.displayName);
-    }
-    updatedUser.displayName = event.target.value;
-    const updatedErrors = { ...errors };
-    updatedErrors.displayName = undefined;
-    setUser(updatedUser);
-    setErrors(updatedErrors);
   };
 
   const onFileSelect = (event) => {
     if (event.target.files.length === 0) {
       return;
     }
-    const updatedErrors = { ...errors };
-    updatedErrors.image = undefined;
     const file = event.target.files[0];
     let reader = new FileReader();
     reader.onloadend = () => {
-      setImage(reader.result);
-      setErrors(updatedErrors);
+      dispatch({ type: 'select-file', payload: reader.result });
     };
     reader.readAsDataURL(file);
   };
 
   let pageContent;
-  if (isLoadingUser) {
+  if (state.isLoadingUser) {
     pageContent = <Spinner />;
-  } else if (userNotFound) {
+  } else if (state.userNotFound) {
     pageContent = (
       <div className="alert alert-danger text-center">
         <div className="alert-heading">
@@ -142,19 +182,21 @@ const UserPage = (props) => {
   } else {
     const isEditable =
       props.loggedInUser.username === props.match.params.username;
-    pageContent = user && (
+    pageContent = state.user && (
       <ProfileCard
-        user={user}
+        user={state.user}
         isEditable={isEditable}
-        inEditMode={inEditMode}
-        onClickEdit={() => setInEditMode(true)}
-        onClickCancel={onClickCancel}
+        inEditMode={state.inEditMode}
+        onClickEdit={() => dispatch({ type: 'edit-mode' })}
+        onClickCancel={() => dispatch({ type: 'cancel' })}
         onClickSave={onClickSave}
-        onChangeDisplayName={onChangeDisplayName}
-        pendingUpdateCall={pendingUpdateCall}
-        loadedImage={image}
+        onChangeDisplayName={(event) =>
+          dispatch({ type: 'update-displayName', payload: event.target.value })
+        }
+        pendingUpdateCall={state.pendingUpdateCall}
+        loadedImage={state.image}
         onFileSelect={onFileSelect}
-        errors={errors}
+        errors={state.errors}
       />
     );
   }
@@ -171,13 +213,13 @@ const UserPage = (props) => {
 };
 UserPage.defaultProps = {
   match: {
-    params: {}
-  }
+    params: {},
+  },
 };
 
 const mapStateToProps = (state) => {
   return {
-    loggedInUser: state
+    loggedInUser: state,
   };
 };
 
