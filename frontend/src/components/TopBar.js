@@ -1,30 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import logo from '../assets/hoaxify-logo.png';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import ProfileImageWithDefault from './ProfileImageWithDefault';
+import useClickTracker from '../shared/useClickTracker';
 
 const TopBar = (props) => {
-  const [dropDownVisible, setDropDownVisible] = useState(false);
   const actionArea = useRef();
-
-  useEffect(() => {
-    const onClickTracker = (event) => {
-      if (!actionArea.current) {
-        setDropDownVisible(false);
-        return;
-      }
-      if (dropDownVisible) {
-        setDropDownVisible(false);
-      } else if (actionArea.current.contains(event.target)) {
-        setDropDownVisible(true);
-      }
-    };
-    document.addEventListener('click', onClickTracker);
-    return function cleanup() {
-      document.removeEventListener('click', onClickTracker);
-    };
-  }, [actionArea, dropDownVisible]);
+  const dropDownVisible = useClickTracker(actionArea);
 
   const onClickLogout = () => {
     const action = {
