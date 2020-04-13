@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import HoaxView from './HoaxView';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -12,7 +12,7 @@ const loggedInStateUser1 = {
   displayName: 'display1',
   image: 'profile1.png',
   password: 'P4ssword',
-  isLoggedIn: true
+  isLoggedIn: true,
 };
 
 const loggedInStateUser2 = {
@@ -21,7 +21,7 @@ const loggedInStateUser2 = {
   displayName: 'display2',
   image: 'profile2.png',
   password: 'P4ssword',
-  isLoggedIn: true
+  isLoggedIn: true,
 };
 
 const hoaxWithoutAttachment = {
@@ -31,8 +31,8 @@ const hoaxWithoutAttachment = {
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile1.png'
-  }
+    image: 'profile1.png',
+  },
 };
 
 const hoaxWithAttachment = {
@@ -42,12 +42,12 @@ const hoaxWithAttachment = {
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile1.png'
+    image: 'profile1.png',
   },
   attachment: {
     fileType: 'image/png',
-    name: 'attached-image.png'
-  }
+    name: 'attached-image.png',
+  },
 };
 
 const hoaxWithPdfAttachment = {
@@ -57,12 +57,12 @@ const hoaxWithPdfAttachment = {
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile1.png'
+    image: 'profile1.png',
   },
   attachment: {
     fileType: 'application/pdf',
-    name: 'attached.pdf'
-  }
+    name: 'attached.pdf',
+  },
 };
 
 const setup = (hoax = hoaxWithoutAttachment, state = loggedInStateUser1) => {
@@ -128,6 +128,18 @@ describe('HoaxView', () => {
     it('does not display delete button when hoax is not owned by logged in user', () => {
       const { container } = setup(hoaxWithoutAttachment, loggedInStateUser2);
       expect(container.querySelector('button')).not.toBeInTheDocument();
+    });
+    it('does not show the dropdown menu when not clicked', () => {
+      const { queryByTestId } = setup();
+      const dropDownMenu = queryByTestId('hoax-action-dropdown');
+      expect(dropDownMenu).not.toHaveClass('show');
+    });
+    it('shows the dropdown menu after clicking the indicator', () => {
+      const { queryByTestId } = setup();
+      const indicator = queryByTestId('hoax-actions');
+      fireEvent.click(indicator);
+      const dropDownMenu = queryByTestId('hoax-action-dropdown');
+      expect(dropDownMenu).toHaveClass('show');
     });
   });
 });
