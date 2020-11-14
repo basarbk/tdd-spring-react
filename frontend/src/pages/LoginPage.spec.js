@@ -2,8 +2,7 @@ import React from 'react';
 import {
   render,
   fireEvent,
-  waitForElement,
-  waitForDomChange
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { LoginPage } from './LoginPage';
 
@@ -135,10 +134,10 @@ describe('LoginPage', () => {
           }
         })
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      const alert = await waitForElement(() => queryByText('Login failed'));
+      const alert = await findByText('Login failed');
       expect(alert).toBeInTheDocument();
     });
     it('clears alert when user changes username', async () => {
@@ -151,13 +150,11 @@ describe('LoginPage', () => {
           }
         })
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
-
-      await waitForElement(() => queryByText('Login failed'));
+      const alert = await findByText('Login failed');
       fireEvent.change(usernameInput, changeEvent('updated-username'));
 
-      const alert = queryByText('Login failed');
       expect(alert).not.toBeInTheDocument();
     });
     it('clears alert when user changes password', async () => {
@@ -170,13 +167,12 @@ describe('LoginPage', () => {
           }
         })
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForElement(() => queryByText('Login failed'));
+      const alert = await findByText('Login failed');
       fireEvent.change(passwordInput, changeEvent('updated-P4ssword'));
-
-      const alert = queryByText('Login failed');
+      
       expect(alert).not.toBeInTheDocument();
     });
 
@@ -208,10 +204,10 @@ describe('LoginPage', () => {
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
-
-      await waitForDomChange();
-
+      
       const spinner = queryByText('Loading...');
+      await waitForElementToBeRemoved(spinner);
+
       expect(spinner).not.toBeInTheDocument();
     });
     it('hides spinner after api call finishes with error', async () => {
@@ -229,9 +225,8 @@ describe('LoginPage', () => {
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForDomChange();
-
       const spinner = queryByText('Loading...');
+      await waitForElementToBeRemoved(spinner);
       expect(spinner).not.toBeInTheDocument();
     });
     it('redirects to homePage after successful login', async () => {
@@ -241,10 +236,11 @@ describe('LoginPage', () => {
       const history = {
         push: jest.fn()
       };
-      setupForSubmit({ actions, history });
+      const { queryByText } = setupForSubmit({ actions, history });
       fireEvent.click(button);
 
-      await waitForDomChange();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+
 
       expect(history.push).toHaveBeenCalledWith('/');
     });
