@@ -409,7 +409,7 @@ describe('HoaxSubmit', () => {
       await waitForDomChange();
       expect(apiCalls.postHoaxFile).toHaveBeenCalledTimes(1);
     });
-    it('calls postHoaxFile with selected file', async (done) => {
+    it('calls postHoaxFile with selected file', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
@@ -431,13 +431,21 @@ describe('HoaxSubmit', () => {
 
       const body = apiCalls.postHoaxFile.mock.calls[0][0];
 
-      const reader = new FileReader();
+      const readFile = () => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
 
-      reader.onloadend = () => {
-        expect(reader.result).toBe('dummy content');
-        done();
-      };
-      reader.readAsText(body.get('file'));
+          reader.onloadend = () => {
+            resolve(reader.result)
+          };
+          reader.readAsText(body.get('file'));
+        })
+      }
+
+      const result = await readFile();
+      
+      expect(result).toBe('dummy content');
+
     });
     it('calls postHoax with hoax with file attachment object when clicking Hoaxify', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
