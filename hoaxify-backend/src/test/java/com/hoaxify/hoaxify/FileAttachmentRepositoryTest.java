@@ -5,19 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.hoaxify.hoaxify.file.FileAttachment;
 import com.hoaxify.hoaxify.file.FileAttachmentRepository;
 import com.hoaxify.hoaxify.hoax.Hoax;
 
-@RunWith(SpringRunner.class)
 @DataJpaTest
 @ActiveProfiles("test")
 public class FileAttachmentRepositoryTest {
