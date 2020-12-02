@@ -12,7 +12,7 @@ const defaultState = {
   displayName: 'display1',
   image: 'profile1.png',
   password: 'P4ssword',
-  isLoggedIn: true
+  isLoggedIn: true,
 };
 
 let store;
@@ -98,7 +98,7 @@ describe('HoaxSubmit', () => {
       fireEvent.click(hoaxifyButton);
 
       expect(apiCalls.postHoax).toHaveBeenCalledWith({
-        content: 'Test hoax content'
+        content: 'Test hoax content',
       });
     });
     it('returns back to unfocused state after successful postHoax action', async () => {
@@ -202,10 +202,10 @@ describe('HoaxSubmit', () => {
         response: {
           data: {
             validationErrors: {
-              content: 'It must have minimum 10 and maximum 5000 characters'
-            }
-          }
-        }
+              content: 'It must have minimum 10 and maximum 5000 characters',
+            },
+          },
+        },
       });
 
       apiCalls.postHoax = mockFunction;
@@ -225,10 +225,10 @@ describe('HoaxSubmit', () => {
         response: {
           data: {
             validationErrors: {
-              content: 'It must have minimum 10 and maximum 5000 characters'
-            }
-          }
-        }
+              content: 'It must have minimum 10 and maximum 5000 characters',
+            },
+          },
+        },
       });
 
       apiCalls.postHoax = mockFunction;
@@ -261,10 +261,10 @@ describe('HoaxSubmit', () => {
         response: {
           data: {
             validationErrors: {
-              content: 'It must have minimum 10 and maximum 5000 characters'
-            }
-          }
-        }
+              content: 'It must have minimum 10 and maximum 5000 characters',
+            },
+          },
+        },
       });
 
       apiCalls.postHoax = mockFunction;
@@ -286,10 +286,10 @@ describe('HoaxSubmit', () => {
         response: {
           data: {
             validationErrors: {
-              content: 'It must have minimum 10 and maximum 5000 characters'
-            }
-          }
-        }
+              content: 'It must have minimum 10 and maximum 5000 characters',
+            },
+          },
+        },
       });
 
       apiCalls.postHoax = mockFunction;
@@ -312,10 +312,10 @@ describe('HoaxSubmit', () => {
         response: {
           data: {
             validationErrors: {
-              content: 'It must have minimum 10 and maximum 5000 characters'
-            }
-          }
-        }
+              content: 'It must have minimum 10 and maximum 5000 characters',
+            },
+          },
+        },
       });
 
       apiCalls.postHoax = mockFunction;
@@ -323,7 +323,7 @@ describe('HoaxSubmit', () => {
 
       await waitForDomChange();
       fireEvent.change(textArea, {
-        target: { value: 'Test hoax content updated' }
+        target: { value: 'Test hoax content updated' },
       });
 
       expect(
@@ -342,8 +342,8 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
       const { container } = setup();
       const textArea = container.querySelector('textarea');
@@ -353,7 +353,7 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
@@ -367,8 +367,8 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
       const { queryByText, container } = setupFocused();
 
@@ -376,7 +376,7 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
@@ -392,8 +392,8 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
 
       const { container } = setupFocused();
@@ -402,19 +402,19 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
       await waitForDomChange();
       expect(apiCalls.postHoaxFile).toHaveBeenCalledTimes(1);
     });
-    it('calls postHoaxFile with selected file', async (done) => {
+    it('calls postHoaxFile with selected file', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
 
       const { container } = setupFocused();
@@ -423,7 +423,7 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
@@ -431,20 +431,27 @@ describe('HoaxSubmit', () => {
 
       const body = apiCalls.postHoaxFile.mock.calls[0][0];
 
-      const reader = new FileReader();
+      const readFile = () => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
 
-      reader.onloadend = () => {
-        expect(reader.result).toBe('dummy content');
-        done();
+          reader.onloadend = () => {
+            resolve(reader.result);
+          };
+          reader.readAsText(body.get('file'));
+        });
       };
-      reader.readAsText(body.get('file'));
+
+      const result = await readFile();
+
+      expect(result).toBe('dummy content');
     });
     it('calls postHoax with hoax with file attachment object when clicking Hoaxify', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
       const { queryByText, container } = setupFocused();
       fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
@@ -453,7 +460,7 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
@@ -468,16 +475,16 @@ describe('HoaxSubmit', () => {
         content: 'Test hoax content',
         attachment: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
     });
     it('clears image after postHoax success', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
       const { queryByText, container } = setupFocused();
       fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
@@ -486,7 +493,7 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
@@ -507,8 +514,8 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
         data: {
           id: 1,
-          name: 'random-name.png'
-        }
+          name: 'random-name.png',
+        },
       });
       const { queryByText, container } = setupFocused();
       fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
@@ -517,7 +524,7 @@ describe('HoaxSubmit', () => {
       expect(uploadInput.type).toBe('file');
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
@@ -533,7 +540,7 @@ describe('HoaxSubmit', () => {
       fireEvent.click(hoaxifyButton);
 
       expect(apiCalls.postHoax).toHaveBeenCalledWith({
-        content: 'Test hoax content'
+        content: 'Test hoax content',
       });
     });
   });

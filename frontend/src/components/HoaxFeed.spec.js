@@ -3,7 +3,7 @@ import {
   render,
   waitForDomChange,
   waitForElement,
-  fireEvent
+  fireEvent,
 } from '@testing-library/react';
 import HoaxFeed from './HoaxFeed';
 import * as apiCalls from '../api/apiCalls';
@@ -18,7 +18,7 @@ const loggedInStateUser1 = {
   displayName: 'display1',
   image: 'profile1.png',
   password: 'P4ssword',
-  isLoggedIn: true
+  isLoggedIn: true,
 };
 
 const originalSetInterval = window.setInterval;
@@ -28,10 +28,15 @@ let timedFunction;
 
 const useFakeIntervals = () => {
   window.setInterval = (callback, interval) => {
-    timedFunction = callback;
+    if (!callback.toString().startsWith('function')) {
+      timedFunction = callback;
+      return 111111;
+    }
   };
-  window.clearInterval = () => {
-    timedFunction = undefined;
+  window.clearInterval = (id) => {
+    if (id === 111111) {
+      timedFunction = undefined;
+    }
   };
 };
 
@@ -57,8 +62,8 @@ const setup = (props, state = loggedInStateUser1) => {
 
 const mockEmptyResponse = {
   data: {
-    content: []
-  }
+    content: [],
+  },
 };
 
 const mockSuccessGetNewHoaxesList = {
@@ -71,10 +76,10 @@ const mockSuccessGetNewHoaxesList = {
         id: 1,
         username: 'user1',
         displayName: 'display1',
-        image: 'profile1.png'
-      }
-    }
-  ]
+        image: 'profile1.png',
+      },
+    },
+  ],
 };
 
 const mockSuccessGetHoaxesMiddleOfMultiPage = {
@@ -88,16 +93,16 @@ const mockSuccessGetHoaxesMiddleOfMultiPage = {
           id: 1,
           username: 'user1',
           displayName: 'display1',
-          image: 'profile1.png'
-        }
-      }
+          image: 'profile1.png',
+        },
+      },
     ],
     number: 0,
     first: false,
     last: false,
     size: 5,
-    totalPages: 2
-  }
+    totalPages: 2,
+  },
 };
 
 const mockSuccessGetHoaxesSinglePage = {
@@ -111,16 +116,16 @@ const mockSuccessGetHoaxesSinglePage = {
           id: 1,
           username: 'user1',
           displayName: 'display1',
-          image: 'profile1.png'
-        }
-      }
+          image: 'profile1.png',
+        },
+      },
     ],
     number: 0,
     first: true,
     last: true,
     size: 5,
-    totalPages: 1
-  }
+    totalPages: 1,
+  },
 };
 
 const mockSuccessGetHoaxesFirstOfMultiPage = {
@@ -134,8 +139,8 @@ const mockSuccessGetHoaxesFirstOfMultiPage = {
           id: 1,
           username: 'user1',
           displayName: 'display1',
-          image: 'profile1.png'
-        }
+          image: 'profile1.png',
+        },
       },
       {
         id: 9,
@@ -145,16 +150,16 @@ const mockSuccessGetHoaxesFirstOfMultiPage = {
           id: 1,
           username: 'user1',
           displayName: 'display1',
-          image: 'profile1.png'
-        }
-      }
+          image: 'profile1.png',
+        },
+      },
     ],
     number: 0,
     first: true,
     last: false,
     size: 5,
-    totalPages: 2
-  }
+    totalPages: 2,
+  },
 };
 
 const mockSuccessGetHoaxesLastOfMultiPage = {
@@ -168,16 +173,16 @@ const mockSuccessGetHoaxesLastOfMultiPage = {
           id: 1,
           username: 'user1',
           displayName: 'display1',
-          image: 'profile1.png'
-        }
-      }
+          image: 'profile1.png',
+        },
+      },
     ],
     number: 0,
     first: true,
     last: true,
     size: 5,
-    totalPages: 2
-  }
+    totalPages: 2,
+  },
 };
 describe('HoaxFeed', () => {
   describe('Lifecycle', () => {

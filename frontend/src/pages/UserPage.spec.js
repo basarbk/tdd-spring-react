@@ -3,7 +3,7 @@ import {
   render,
   waitForElement,
   fireEvent,
-  waitForDomChange
+  waitForDomChange,
 } from '@testing-library/react';
 import UserPage from './UserPage';
 import * as apiCalls from '../api/apiCalls';
@@ -15,8 +15,8 @@ apiCalls.loadHoaxes = jest.fn().mockResolvedValue({
   data: {
     content: [],
     number: 0,
-    size: 3
-  }
+    size: 3,
+  },
 });
 
 const mockSuccessGetUser = {
@@ -24,8 +24,8 @@ const mockSuccessGetUser = {
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile1.png'
-  }
+    image: 'profile1.png',
+  },
 };
 
 const mockSuccessUpdateUser = {
@@ -33,15 +33,15 @@ const mockSuccessUpdateUser = {
     id: 1,
     username: 'user1',
     displayName: 'display1-update',
-    image: 'profile1-update.png'
-  }
+    image: 'profile1-update.png',
+  },
 };
 const mockFailGetUser = {
   response: {
     data: {
-      message: 'User not found'
-    }
-  }
+      message: 'User not found',
+    },
+  },
 };
 
 const mockFailUpdateUser = {
@@ -49,16 +49,16 @@ const mockFailUpdateUser = {
     data: {
       validationErrors: {
         displayName: 'It must have minimum 4 and maximum 255 characters',
-        image: 'Only PNG and JPG files are allowed'
-      }
-    }
-  }
+        image: 'Only PNG and JPG files are allowed',
+      },
+    },
+  },
 };
 
 const match = {
   params: {
-    username: 'user1'
-  }
+    username: 'user1',
+  },
 };
 
 let store;
@@ -83,7 +83,7 @@ const setUserOneLoggedInStorage = () => {
       displayName: 'display1',
       image: 'profile1.png',
       password: 'P4ssword',
-      isLoggedIn: true
+      isLoggedIn: true,
     })
   );
 };
@@ -245,7 +245,7 @@ describe('UserPage', () => {
 
       displayInput = container.querySelector('input');
       fireEvent.change(displayInput, {
-        target: { value: 'display1-update-second-time' }
+        target: { value: 'display1-update-second-time' },
       });
       const cancelButton = queryByText('Cancel');
       fireEvent.click(cancelButton);
@@ -263,17 +263,17 @@ describe('UserPage', () => {
       const spinner = queryByText('Loading...');
       expect(spinner).toBeInTheDocument();
     });
-    it('disabels save button when there is updateUser api call', async () => {
-      const { queryByText } = await setupForEdit();
+    it('disables save button when there is updateUser api call', async () => {
+      const { queryByRole } = await setupForEdit();
       apiCalls.updateUser = mockDelayedUpdateSuccess();
 
-      const saveButton = queryByText('Save');
+      const saveButton = queryByRole('button', { name: 'Save' });
       fireEvent.click(saveButton);
 
       expect(saveButton).toBeDisabled();
     });
 
-    it('disabels cancel button when there is updateUser api call', async () => {
+    it('disables cancel button when there is updateUser api call', async () => {
       const { queryByText } = await setupForEdit();
       apiCalls.updateUser = mockDelayedUpdateSuccess();
 
@@ -322,7 +322,7 @@ describe('UserPage', () => {
       const uploadInput = inputs[1];
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
 
       fireEvent.change(uploadInput, { target: { files: [file] } });
@@ -339,7 +339,7 @@ describe('UserPage', () => {
       const uploadInput = inputs[1];
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
 
       fireEvent.change(uploadInput, { target: { files: [file] } });
@@ -370,7 +370,7 @@ describe('UserPage', () => {
       const uploadInput = inputs[1];
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
 
       fireEvent.change(uploadInput, { target: { files: [file] } });
@@ -392,7 +392,7 @@ describe('UserPage', () => {
       const uploadInput = inputs[1];
 
       const file = new File(['dummy content'], 'example.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
 
       fireEvent.change(uploadInput, { target: { files: [file] } });
@@ -407,7 +407,7 @@ describe('UserPage', () => {
       fireEvent.click(editButtonAfterClickingSave);
 
       const newFile = new File(['another content'], 'example2.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
 
       fireEvent.change(uploadInput, { target: { files: [newFile] } });
@@ -467,7 +467,7 @@ describe('UserPage', () => {
       const fileInput = container.querySelectorAll('input')[1];
 
       const newFile = new File(['another content'], 'example2.png', {
-        type: 'image/png'
+        type: 'image/png',
       });
       fireEvent.change(fileInput, { target: { files: [newFile] } });
 

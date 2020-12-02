@@ -6,13 +6,13 @@ import Modal from './Modal';
 class HoaxFeed extends Component {
   state = {
     page: {
-      content: []
+      content: [],
     },
     isLoadingHoaxes: false,
     newHoaxCount: 0,
     isLoadingOldHoaxes: false,
     isLoadingNewHoaxes: false,
-    isDeletingHoax: false
+    isDeletingHoax: false,
   };
 
   componentDidMount() {
@@ -40,6 +40,9 @@ class HoaxFeed extends Component {
   };
 
   onClickLoadMore = () => {
+    if (this.state.isLoadingOldHoaxes) {
+      return;
+    }
     const hoaxes = this.state.page.content;
     if (hoaxes.length === 0) {
       return;
@@ -60,6 +63,9 @@ class HoaxFeed extends Component {
   };
 
   onClickLoadNew = () => {
+    if (this.state.isLoadingNewHoaxes) {
+      return;
+    }
     const hoaxes = this.state.page.content;
     let topHoaxId = 0;
     if (hoaxes.length > 0) {
@@ -96,7 +102,7 @@ class HoaxFeed extends Component {
       this.setState({
         hoaxToBeDeleted: undefined,
         page,
-        isDeletingHoax: false
+        isDeletingHoax: false,
       });
     });
   };
@@ -119,9 +125,9 @@ class HoaxFeed extends Component {
         {this.state.newHoaxCount > 0 && (
           <div
             className="card card-header text-center"
-            onClick={!this.state.isLoadingNewHoaxes && this.onClickLoadNew}
+            onClick={this.onClickLoadNew}
             style={{
-              cursor: this.state.isLoadingNewHoaxes ? 'not-allowed' : 'pointer'
+              cursor: this.state.isLoadingNewHoaxes ? 'not-allowed' : 'pointer',
             }}
           >
             {this.state.isLoadingNewHoaxes ? <Spinner /> : newHoaxCountMessage}
@@ -139,9 +145,9 @@ class HoaxFeed extends Component {
         {this.state.page.last === false && (
           <div
             className="card card-header text-center"
-            onClick={!this.state.isLoadingOldHoaxes && this.onClickLoadMore}
+            onClick={this.onClickLoadMore}
             style={{
-              cursor: this.state.isLoadingOldHoaxes ? 'not-allowed' : 'pointer'
+              cursor: this.state.isLoadingOldHoaxes ? 'not-allowed' : 'pointer',
             }}
           >
             {this.state.isLoadingOldHoaxes ? <Spinner /> : 'Load More'}
