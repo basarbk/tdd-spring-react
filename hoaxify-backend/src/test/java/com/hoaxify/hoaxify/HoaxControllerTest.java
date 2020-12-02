@@ -15,10 +15,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -31,7 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hoaxify.hoaxify.configuration.AppConfiguration;
@@ -48,7 +46,6 @@ import com.hoaxify.hoaxify.user.User;
 import com.hoaxify.hoaxify.user.UserRepository;
 import com.hoaxify.hoaxify.user.UserService;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class HoaxControllerTest {
@@ -82,7 +79,7 @@ public class HoaxControllerTest {
 	@PersistenceUnit
 	private EntityManagerFactory entityManagerFactory;
 	
-	@Before
+	@BeforeEach
 	public void cleanup() throws IOException {
 		fileAttachmentRepository.deleteAll();
 		hoaxRepository.deleteAll();
@@ -725,7 +722,7 @@ public class HoaxControllerTest {
 			.getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
 	}
 	
-	@After
+	@AfterEach
 	public void cleanupAfter() {
 		fileAttachmentRepository.deleteAll();
 		hoaxRepository.deleteAll();

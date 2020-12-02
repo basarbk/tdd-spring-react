@@ -8,22 +8,22 @@ import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.hoaxify.hoaxify.configuration.AppConfiguration;
 import com.hoaxify.hoaxify.file.FileAttachment;
 import com.hoaxify.hoaxify.file.FileAttachmentRepository;
 import com.hoaxify.hoaxify.file.FileService;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 public class FileServiceTest {
 	
@@ -34,7 +34,7 @@ public class FileServiceTest {
 	@MockBean
 	FileAttachmentRepository fileAttachmentRepository;
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		appConfiguration = new AppConfiguration();
 		appConfiguration.setUploadPath("uploads-test");
@@ -94,7 +94,7 @@ public class FileServiceTest {
 	}
 
 	
-	@After
+	@AfterEach
 	public void cleanup() throws IOException {
 		FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));
 		FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));
