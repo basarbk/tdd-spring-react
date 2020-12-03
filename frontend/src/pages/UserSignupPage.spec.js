@@ -2,8 +2,7 @@ import React from 'react';
 import {
   render,
   fireEvent,
-  waitForDomChange,
-  waitForElement
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { UserSignupPage } from './UserSignupPage';
 
@@ -54,8 +53,8 @@ describe('UserSignupPage', () => {
     const changeEvent = (content) => {
       return {
         target: {
-          value: content
-        }
+          value: content,
+        },
       };
     };
 
@@ -128,7 +127,7 @@ describe('UserSignupPage', () => {
 
     it('calls postSignup when the fields are valid and the actions are provided in props', () => {
       const actions = {
-        postSignup: jest.fn().mockResolvedValueOnce({})
+        postSignup: jest.fn().mockResolvedValueOnce({}),
       };
       setupForSubmit({ actions });
       fireEvent.click(button);
@@ -142,21 +141,21 @@ describe('UserSignupPage', () => {
 
     it('calls post with user body when the fields are valid', () => {
       const actions = {
-        postSignup: jest.fn().mockResolvedValueOnce({})
+        postSignup: jest.fn().mockResolvedValueOnce({}),
       };
       setupForSubmit({ actions });
       fireEvent.click(button);
       const expectedUserObject = {
         username: 'my-user-name',
         displayName: 'my-display-name',
-        password: 'P4ssword'
+        password: 'P4ssword',
       };
       expect(actions.postSignup).toHaveBeenCalledWith(expectedUserObject);
     });
 
     it('does not allow user to click the Sign Up button when there is an ongoing api call', () => {
       const actions = {
-        postSignup: mockAsyncDelayed()
+        postSignup: mockAsyncDelayed(),
       };
       setupForSubmit({ actions });
       fireEvent.click(button);
@@ -167,7 +166,7 @@ describe('UserSignupPage', () => {
 
     it('displays spinner when there is an ongoing api call', () => {
       const actions = {
-        postSignup: mockAsyncDelayed()
+        postSignup: mockAsyncDelayed(),
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
@@ -178,14 +177,14 @@ describe('UserSignupPage', () => {
 
     it('hides spinner after api call finishes successfully', async () => {
       const actions = {
-        postSignup: mockAsyncDelayed()
+        postSignup: mockAsyncDelayed(),
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForDomChange();
-
       const spinner = queryByText('Loading...');
+      await waitForElementToBeRemoved(spinner);
+
       expect(spinner).not.toBeInTheDocument();
     });
 
@@ -195,18 +194,17 @@ describe('UserSignupPage', () => {
           return new Promise((resolve, reject) => {
             setTimeout(() => {
               reject({
-                response: { data: {} }
+                response: { data: {} },
               });
             }, 300);
           });
-        })
+        }),
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForDomChange();
-
       const spinner = queryByText('Loading...');
+      await waitForElementToBeRemoved(spinner);
       expect(spinner).not.toBeInTheDocument();
     });
 
@@ -216,18 +214,17 @@ describe('UserSignupPage', () => {
           response: {
             data: {
               validationErrors: {
-                displayName: 'Cannot be null'
-              }
-            }
-          }
-        })
+                displayName: 'Cannot be null',
+              },
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      const errorMessage = await waitForElement(() =>
-        queryByText('Cannot be null')
-      );
+      const errorMessage = await findByText('Cannot be null');
+
       expect(errorMessage).toBeInTheDocument();
     });
 
@@ -268,19 +265,18 @@ describe('UserSignupPage', () => {
           response: {
             data: {
               validationErrors: {
-                displayName: 'Cannot be null'
-              }
-            }
-          }
-        })
+                displayName: 'Cannot be null',
+              },
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForElement(() => queryByText('Cannot be null'));
+      const errorMessage = await findByText('Cannot be null');
       fireEvent.change(displayNameInput, changeEvent('name updated'));
 
-      const errorMessage = queryByText('Cannot be null');
       expect(errorMessage).not.toBeInTheDocument();
     });
 
@@ -290,19 +286,18 @@ describe('UserSignupPage', () => {
           response: {
             data: {
               validationErrors: {
-                username: 'Username cannot be null'
-              }
-            }
-          }
-        })
+                username: 'Username cannot be null',
+              },
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForElement(() => queryByText('Username cannot be null'));
+      const errorMessage = await findByText('Username cannot be null');
       fireEvent.change(usernameInput, changeEvent('name updated'));
 
-      const errorMessage = queryByText('Username cannot be null');
       expect(errorMessage).not.toBeInTheDocument();
     });
     it('hides the validation error when user changes the content of password', async () => {
@@ -311,33 +306,32 @@ describe('UserSignupPage', () => {
           response: {
             data: {
               validationErrors: {
-                password: 'Cannot be null'
-              }
-            }
-          }
-        })
+                password: 'Cannot be null',
+              },
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForElement(() => queryByText('Cannot be null'));
+      const errorMessage = await findByText('Cannot be null');
       fireEvent.change(passwordInput, changeEvent('updated-password'));
 
-      const errorMessage = queryByText('Cannot be null');
       expect(errorMessage).not.toBeInTheDocument();
     });
 
     it('redirects to homePage after successful signup', async () => {
       const actions = {
-        postSignup: jest.fn().mockResolvedValue({})
+        postSignup: jest.fn().mockResolvedValue({}),
       };
       const history = {
-        push: jest.fn()
+        push: jest.fn(),
       };
-      setupForSubmit({ actions, history });
+      const { queryByText } = setupForSubmit({ actions, history });
       fireEvent.click(button);
 
-      await waitForDomChange();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
 
       expect(history.push).toHaveBeenCalledWith('/');
     });
