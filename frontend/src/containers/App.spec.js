@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 import { Provider } from 'react-redux';
@@ -11,8 +11,8 @@ apiCalls.listUsers = jest.fn().mockResolvedValue({
   data: {
     content: [],
     number: 0,
-    size: 3
-  }
+    size: 3,
+  },
 });
 
 apiCalls.getUser = jest.fn().mockResolvedValue({
@@ -20,16 +20,16 @@ apiCalls.getUser = jest.fn().mockResolvedValue({
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile1.png'
-  }
+    image: 'profile1.png',
+  },
 });
 
 apiCalls.loadHoaxes = jest.fn().mockResolvedValue({
   data: {
     content: [],
     number: 0,
-    size: 3
-  }
+    size: 3,
+  },
 });
 
 const mockSuccessGetUser1 = {
@@ -37,24 +37,24 @@ const mockSuccessGetUser1 = {
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile1.png'
-  }
+    image: 'profile1.png',
+  },
 };
 const mockSuccessGetUser2 = {
   data: {
     id: 2,
     username: 'user2',
     displayName: 'display2',
-    image: 'profile2.png'
-  }
+    image: 'profile2.png',
+  },
 };
 
 const mockFailGetUser = {
   response: {
     data: {
-      message: 'User not found'
-    }
-  }
+      message: 'User not found',
+    },
+  },
 };
 
 beforeEach(() => {
@@ -75,8 +75,8 @@ const setup = (path) => {
 const changeEvent = (content) => {
   return {
     target: {
-      value: content
-    }
+      value: content,
+    },
   };
 };
 
@@ -89,7 +89,7 @@ const setUserOneLoggedInStorage = () => {
       displayName: 'display1',
       image: 'profile1.png',
       password: 'P4ssword',
-      isLoggedIn: true
+      isLoggedIn: true,
     })
   );
 };
@@ -159,7 +159,7 @@ describe('App', () => {
     expect(queryByTestId('homepage')).toBeInTheDocument();
   });
   it('displays My Profile on TopBar after login success', async () => {
-    const { queryByPlaceholderText, container, queryByText } = setup('/login');
+    const { queryByPlaceholderText, container, findByText } = setup('/login');
     const usernameInput = queryByPlaceholderText('Your username');
     fireEvent.change(usernameInput, changeEvent('user1'));
     const passwordInput = queryByPlaceholderText('Your password');
@@ -170,16 +170,16 @@ describe('App', () => {
         id: 1,
         username: 'user1',
         displayName: 'display1',
-        image: 'profile1.png'
-      }
+        image: 'profile1.png',
+      },
     });
     fireEvent.click(button);
 
-    const myProfileLink = await waitForElement(() => queryByText('My Profile'));
+    const myProfileLink = await findByText('My Profile');
     expect(myProfileLink).toBeInTheDocument();
   });
   it('displays My Profile on TopBar after signup success', async () => {
-    const { queryByPlaceholderText, container, queryByText } = setup('/signup');
+    const { queryByPlaceholderText, container, findByText } = setup('/signup');
     const displayNameInput = queryByPlaceholderText('Your display name');
     const usernameInput = queryByPlaceholderText('Your username');
     const passwordInput = queryByPlaceholderText('Your password');
@@ -195,25 +195,25 @@ describe('App', () => {
       .fn()
       .mockResolvedValueOnce({
         data: {
-          message: 'User saved'
-        }
+          message: 'User saved',
+        },
       })
       .mockResolvedValueOnce({
         data: {
           id: 1,
           username: 'user1',
           displayName: 'display1',
-          image: 'profile1.png'
-        }
+          image: 'profile1.png',
+        },
       });
 
     fireEvent.click(button);
 
-    const myProfileLink = await waitForElement(() => queryByText('My Profile'));
+    const myProfileLink = await findByText('My Profile');
     expect(myProfileLink).toBeInTheDocument();
   });
   it('saves logged in user data to localStorage after login success', async () => {
-    const { queryByPlaceholderText, container, queryByText } = setup('/login');
+    const { queryByPlaceholderText, container, findByText } = setup('/login');
     const usernameInput = queryByPlaceholderText('Your username');
     fireEvent.change(usernameInput, changeEvent('user1'));
     const passwordInput = queryByPlaceholderText('Your password');
@@ -224,12 +224,12 @@ describe('App', () => {
         id: 1,
         username: 'user1',
         displayName: 'display1',
-        image: 'profile1.png'
-      }
+        image: 'profile1.png',
+      },
     });
     fireEvent.click(button);
 
-    await waitForElement(() => queryByText('My Profile'));
+    await findByText('My Profile');
     const dataInStorage = JSON.parse(localStorage.getItem('hoax-auth'));
     expect(dataInStorage).toEqual({
       id: 1,
@@ -237,7 +237,7 @@ describe('App', () => {
       displayName: 'display1',
       image: 'profile1.png',
       password: 'P4ssword',
-      isLoggedIn: true
+      isLoggedIn: true,
     });
   });
   it('displays logged in topBar when storage has logged in user data', () => {
@@ -247,7 +247,7 @@ describe('App', () => {
     expect(myProfileLink).toBeInTheDocument();
   });
   it('sets axios authorization with base64 encoded user credentials after login success', async () => {
-    const { queryByPlaceholderText, container, queryByText } = setup('/login');
+    const { queryByPlaceholderText, container, findByText } = setup('/login');
     const usernameInput = queryByPlaceholderText('Your username');
     fireEvent.change(usernameInput, changeEvent('user1'));
     const passwordInput = queryByPlaceholderText('Your password');
@@ -258,12 +258,12 @@ describe('App', () => {
         id: 1,
         username: 'user1',
         displayName: 'display1',
-        image: 'profile1.png'
-      }
+        image: 'profile1.png',
+      },
     });
     fireEvent.click(button);
 
-    await waitForElement(() => queryByText('My Profile'));
+    await findByText('My Profile');
     const axiosAuthorization = axios.defaults.headers.common['Authorization'];
 
     const encoded = btoa('user1:P4ssword');
@@ -293,13 +293,13 @@ describe('App', () => {
       .mockResolvedValueOnce(mockSuccessGetUser1);
 
     setUserOneLoggedInStorage();
-    const { queryByText } = setup('/user2');
+    const { queryByText, findByText } = setup('/user2');
 
-    await waitForElement(() => queryByText('display2@user2'));
+    await findByText('display2@user2');
 
     const myProfileLink = queryByText('My Profile');
     fireEvent.click(myProfileLink);
-    const user1Info = await waitForElement(() => queryByText('display1@user1'));
+    const user1Info = await findByText('display1@user1');
     expect(user1Info).toBeInTheDocument();
   });
   it('updates user page after clicking my profile when another non existing user page was opened', async () => {
@@ -309,13 +309,13 @@ describe('App', () => {
       .mockResolvedValueOnce(mockSuccessGetUser1);
 
     setUserOneLoggedInStorage();
-    const { queryByText } = setup('/user50');
+    const { queryByText, findByText } = setup('/user50');
 
-    await waitForElement(() => queryByText('User not found'));
+    await findByText('User not found');
 
     const myProfileLink = queryByText('My Profile');
     fireEvent.click(myProfileLink);
-    const user1Info = await waitForElement(() => queryByText('display1@user1'));
+    const user1Info = await findByText('display1@user1');
     expect(user1Info).toBeInTheDocument();
   });
 });

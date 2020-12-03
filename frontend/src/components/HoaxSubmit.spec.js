@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, fireEvent, waitForDomChange } from '@testing-library/react';
+import {
+  render,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import HoaxSubmit from './HoaxSubmit';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -110,8 +115,9 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoax = jest.fn().mockResolvedValue({});
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
-      expect(queryByText('Hoaxify')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(queryByText('Hoaxify')).not.toBeInTheDocument();
+      });
     });
     it('clear content after successful postHoax action', async () => {
       const { queryByText } = setupFocused();
@@ -122,8 +128,9 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoax = jest.fn().mockResolvedValue({});
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
-      expect(queryByText('Test hoax content')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(queryByText('Test hoax content')).not.toBeInTheDocument();
+      });
     });
     it('clears content after clicking cancel', () => {
       const { queryByText } = setupFocused();
@@ -211,9 +218,9 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoax = mockFunction;
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
-
-      expect(queryByText('Hoaxify')).not.toBeDisabled();
+      await waitFor(() => {
+        expect(queryByText('Hoaxify')).not.toBeDisabled();
+      });
     });
     it('enables Cancel button when postHoax api call fails', async () => {
       const { queryByText } = setupFocused();
@@ -234,9 +241,9 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoax = mockFunction;
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
-
-      expect(queryByText('Cancel')).not.toBeDisabled();
+      await waitFor(() => {
+        expect(queryByText('Cancel')).not.toBeDisabled();
+      });
     });
     it('enables Hoaxify button after successful postHoax action', async () => {
       const { queryByText } = setupFocused();
@@ -246,10 +253,11 @@ describe('HoaxSubmit', () => {
 
       apiCalls.postHoax = jest.fn().mockResolvedValue({});
       fireEvent.click(hoaxifyButton);
-
-      await waitForDomChange();
+      await waitForElementToBeRemoved(hoaxifyButton);
       fireEvent.focus(textArea);
-      expect(queryByText('Hoaxify')).not.toBeDisabled();
+      await waitFor(() => {
+        expect(queryByText('Hoaxify')).not.toBeDisabled();
+      });
     });
     it('displays validation error for content', async () => {
       const { queryByText } = setupFocused();
@@ -270,14 +278,14 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoax = mockFunction;
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
-
-      expect(
-        queryByText('It must have minimum 10 and maximum 5000 characters')
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          queryByText('It must have minimum 10 and maximum 5000 characters')
+        ).toBeInTheDocument();
+      });
     });
     it('clears validation error after clicking cancel', async () => {
-      const { queryByText } = setupFocused();
+      const { queryByText, findByText } = setupFocused();
       fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
 
       const hoaxifyButton = queryByText('Hoaxify');
@@ -295,15 +303,16 @@ describe('HoaxSubmit', () => {
       apiCalls.postHoax = mockFunction;
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
+      const error = await findByText(
+        'It must have minimum 10 and maximum 5000 characters'
+      );
+
       fireEvent.click(queryByText('Cancel'));
 
-      expect(
-        queryByText('It must have minimum 10 and maximum 5000 characters')
-      ).not.toBeInTheDocument();
+      expect(error).not.toBeInTheDocument();
     });
     it('clears validation error after content is changed', async () => {
-      const { queryByText } = setupFocused();
+      const { queryByText, findByText } = setupFocused();
       fireEvent.change(textArea, { target: { value: 'Test hoax content' } });
 
       const hoaxifyButton = queryByText('Hoaxify');
@@ -320,15 +329,15 @@ describe('HoaxSubmit', () => {
 
       apiCalls.postHoax = mockFunction;
       fireEvent.click(hoaxifyButton);
+      const error = await findByText(
+        'It must have minimum 10 and maximum 5000 characters'
+      );
 
-      await waitForDomChange();
       fireEvent.change(textArea, {
         target: { value: 'Test hoax content updated' },
       });
 
-      expect(
-        queryByText('It must have minimum 10 and maximum 5000 characters')
-      ).not.toBeInTheDocument();
+      expect(error).not.toBeInTheDocument();
     });
     it('displays file attachment input when text area focused', () => {
       const { container } = setup();
@@ -357,11 +366,11 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
-
-      const images = container.querySelectorAll('img');
-      const attachmentImage = images[1];
-      expect(attachmentImage.src).toContain('data:image/png;base64');
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        const attachmentImage = images[1];
+        expect(attachmentImage.src).toContain('data:image/png;base64');
+      });
     });
     it('removes selected image after clicking cancel', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
@@ -380,13 +389,18 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(2);
+      });
 
       fireEvent.click(queryByText('Cancel'));
       fireEvent.focus(textArea);
 
-      const images = container.querySelectorAll('img');
-      expect(images.length).toBe(1);
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(1);
+      });
     });
     it('calls postHoaxFile when file selected', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
@@ -406,7 +420,10 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(2);
+      });
       expect(apiCalls.postHoaxFile).toHaveBeenCalledTimes(1);
     });
     it('calls postHoaxFile with selected file', async () => {
@@ -427,7 +444,10 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(2);
+      });
 
       const body = apiCalls.postHoaxFile.mock.calls[0][0];
 
@@ -464,7 +484,10 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(2);
+      });
 
       const hoaxifyButton = queryByText('Hoaxify');
 
@@ -497,18 +520,21 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(2);
+      });
 
       const hoaxifyButton = queryByText('Hoaxify');
 
       apiCalls.postHoax = jest.fn().mockResolvedValue({});
       fireEvent.click(hoaxifyButton);
 
-      await waitForDomChange();
-
       fireEvent.focus(textArea);
-      const images = container.querySelectorAll('img');
-      expect(images.length).toBe(1);
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(1);
+      });
     });
     it('calls postHoax without file attachment after cancelling previous file selection', async () => {
       apiCalls.postHoaxFile = jest.fn().mockResolvedValue({
@@ -528,8 +554,10 @@ describe('HoaxSubmit', () => {
       });
       fireEvent.change(uploadInput, { target: { files: [file] } });
 
-      await waitForDomChange();
-
+      await waitFor(() => {
+        const images = container.querySelectorAll('img');
+        expect(images.length).toBe(2);
+      });
       fireEvent.click(queryByText('Cancel'));
       fireEvent.focus(textArea);
 

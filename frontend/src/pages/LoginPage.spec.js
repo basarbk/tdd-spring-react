@@ -2,8 +2,7 @@ import React from 'react';
 import {
   render,
   fireEvent,
-  waitForElement,
-  waitForDomChange
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { LoginPage } from './LoginPage';
 
@@ -42,8 +41,8 @@ describe('LoginPage', () => {
     const changeEvent = (content) => {
       return {
         target: {
-          value: content
-        }
+          value: content,
+        },
       };
     };
     const mockAsyncDelayed = () => {
@@ -85,7 +84,7 @@ describe('LoginPage', () => {
     });
     it('calls postLogin when the actions are provided in props and input fields have value', () => {
       const actions = {
-        postLogin: jest.fn().mockResolvedValue({})
+        postLogin: jest.fn().mockResolvedValue({}),
       };
       setupForSubmit({ actions });
       fireEvent.click(button);
@@ -98,14 +97,14 @@ describe('LoginPage', () => {
 
     it('calls postLogin with credentials in body', () => {
       const actions = {
-        postLogin: jest.fn().mockResolvedValue({})
+        postLogin: jest.fn().mockResolvedValue({}),
       };
       setupForSubmit({ actions });
       fireEvent.click(button);
 
       const expectedUserObject = {
         username: 'my-user-name',
-        password: 'P4ssword'
+        password: 'P4ssword',
       };
 
       expect(actions.postLogin).toHaveBeenCalledWith(expectedUserObject);
@@ -130,15 +129,15 @@ describe('LoginPage', () => {
         postLogin: jest.fn().mockRejectedValue({
           response: {
             data: {
-              message: 'Login failed'
-            }
-          }
-        })
+              message: 'Login failed',
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      const alert = await waitForElement(() => queryByText('Login failed'));
+      const alert = await findByText('Login failed');
       expect(alert).toBeInTheDocument();
     });
     it('clears alert when user changes username', async () => {
@@ -146,18 +145,17 @@ describe('LoginPage', () => {
         postLogin: jest.fn().mockRejectedValue({
           response: {
             data: {
-              message: 'Login failed'
-            }
-          }
-        })
+              message: 'Login failed',
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForElement(() => queryByText('Login failed'));
+      const alert = await findByText('Login failed');
       fireEvent.change(usernameInput, changeEvent('updated-username'));
 
-      const alert = queryByText('Login failed');
       expect(alert).not.toBeInTheDocument();
     });
     it('clears alert when user changes password', async () => {
@@ -165,24 +163,23 @@ describe('LoginPage', () => {
         postLogin: jest.fn().mockRejectedValue({
           response: {
             data: {
-              message: 'Login failed'
-            }
-          }
-        })
+              message: 'Login failed',
+            },
+          },
+        }),
       };
-      const { queryByText } = setupForSubmit({ actions });
+      const { findByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForElement(() => queryByText('Login failed'));
+      const alert = await findByText('Login failed');
       fireEvent.change(passwordInput, changeEvent('updated-P4ssword'));
 
-      const alert = queryByText('Login failed');
       expect(alert).not.toBeInTheDocument();
     });
 
     it('does not allow user to click the Login button when there is an ongoing api call', () => {
       const actions = {
-        postLogin: mockAsyncDelayed()
+        postLogin: mockAsyncDelayed(),
       };
       setupForSubmit({ actions });
       fireEvent.click(button);
@@ -193,7 +190,7 @@ describe('LoginPage', () => {
 
     it('displays spinner when there is an ongoing api call', () => {
       const actions = {
-        postLogin: mockAsyncDelayed()
+        postLogin: mockAsyncDelayed(),
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
@@ -204,14 +201,13 @@ describe('LoginPage', () => {
 
     it('hides spinner after api call finishes successfully', async () => {
       const actions = {
-        postLogin: mockAsyncDelayed()
+        postLogin: mockAsyncDelayed(),
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForDomChange();
-
       const spinner = queryByText('Loading...');
+      await waitForElementToBeRemoved(spinner);
       expect(spinner).not.toBeInTheDocument();
     });
     it('hides spinner after api call finishes with error', async () => {
@@ -220,31 +216,30 @@ describe('LoginPage', () => {
           return new Promise((resolve, reject) => {
             setTimeout(() => {
               reject({
-                response: { data: {} }
+                response: { data: {} },
               });
             }, 300);
           });
-        })
+        }),
       };
       const { queryByText } = setupForSubmit({ actions });
       fireEvent.click(button);
 
-      await waitForDomChange();
-
       const spinner = queryByText('Loading...');
+      await waitForElementToBeRemoved(spinner);
       expect(spinner).not.toBeInTheDocument();
     });
     it('redirects to homePage after successful login', async () => {
       const actions = {
-        postLogin: jest.fn().mockResolvedValue({})
+        postLogin: jest.fn().mockResolvedValue({}),
       };
       const history = {
-        push: jest.fn()
+        push: jest.fn(),
       };
-      setupForSubmit({ actions, history });
+      const { queryByText } = setupForSubmit({ actions, history });
       fireEvent.click(button);
 
-      await waitForDomChange();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
 
       expect(history.push).toHaveBeenCalledWith('/');
     });
