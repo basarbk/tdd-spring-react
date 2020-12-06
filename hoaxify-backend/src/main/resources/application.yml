@@ -13,6 +13,7 @@ spring:
 spring:
   profiles: prod
   datasource:    url: jdbc:h2:./hoaxify-prod
+    username: sa
   jpa:    hibernate:      ddl-auto: update
   h2:
     console:      enabled: false
