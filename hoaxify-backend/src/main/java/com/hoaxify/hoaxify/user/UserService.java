@@ -48,7 +48,7 @@ public class UserService {
 	}
 
 	public User update(long id, UserUpdateVM userUpdate) {
-		User inDB = userRepository.getOne(id);
+		User inDB = userRepository.getReferenceById(id);
 		inDB.setDisplayName(userUpdate.getDisplayName());
 		if(userUpdate.getImage() != null) {
 			String savedImageName;
